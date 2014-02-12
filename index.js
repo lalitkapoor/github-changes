@@ -6,6 +6,13 @@ var Promise = require("bluebird");
 var GithubApi = require('github');
 var ghauth = Promise.promisify(require('ghauth'));
 
+// It might be faster to just go through commits on the branch
+// instead of iterating over closed issues, look into this later.
+//
+// Even better yet. I might just be able to do this with git log.
+// tags: git log --tags --simplify-by-decoration --format="%ci%n%d"
+// prs: git log --grep="Merge pull request #" --format="%s%n%ci%n%b"
+
 opts = parser
   .option('username', {
     abbr: 'u'
@@ -36,6 +43,7 @@ opts = parser
   , help: '(optional) name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
   })
+  // TODO
   // .option('template', {
   //   abbr: 't'
   // , help: '(optional) template to use to generate the changelog'
@@ -98,8 +106,8 @@ var getPullRequests = function(){
     if (!allIssues) allIssues = [];
     return github.issues.repoIssuesAsync(options).then(function(issues){
       allIssues = allIssues.concat(issues);
-      console.log('issues pulled - ', issues.length);
-      console.log('issues page - ', options.page);
+      // console.log('issues pulled - ', issues.length);
+      // console.log('issues page - ', options.page);
       if (issues.length >= 100) {
         options.page++;
         return getAllIssues(options, allIssues);
@@ -176,7 +184,7 @@ var formatter = function(data) {
     } else if (pr.tag.name != currentTagName) {
       currentTagName = pr.tag.name;
       output+= "\n### " + pr.tag.name
-      if (currentTagName != opts.tagname) output+= " (" + pr.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+      output+= " (" + pr.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
       output+= "\n";
     }
 
@@ -198,13 +206,6 @@ var getGithubToken = function() {
   if (opts.token) return Promise.resolve({token: opts.token});
   return ghauth(authOptions);
 };
-
-// It might be faster to just go through commits on the branch
-// instead of iterating over closed issues, look into this later.
-//
-// Even better yet. I might just be able to do this with git log.
-// tags: git log --tags --simplify-by-decoration --format="%ci%n%d"
-// prs: git log --grep="Merge pull request #" --format="%s%n%ci%n%b"
 
 getGithubToken()
   .then(function(authData){
