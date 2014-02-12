@@ -116,9 +116,7 @@ var getPullRequests = function(){
     });
   };
 
-  return github.issues.repoIssuesAsync(issueOpts).then(function(issues){
-    console.log('issues pulled - ', issues.length);
-    console.log('issues page - ', issueOpts.page);
+  return getIssues(issueOpts).then(function(issues){
     var totalPages = linkParser(issues.meta.link).last.page;
 
     if (totalPages > issueOpts.page) {
