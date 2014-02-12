@@ -4,6 +4,7 @@ var _ = require('lodash');
 var moment = require('moment');
 var Promise = require("bluebird");
 var GithubApi = require('github');
+var linkParser = require('parse-link-header');
 var ghauth = Promise.promisify(require('ghauth'));
 
 // It might be faster to just go through commits on the branch
@@ -14,8 +15,8 @@ var ghauth = Promise.promisify(require('ghauth'));
 // prs: git log --grep="Merge pull request #" --format="%s%n%ci%n%b"
 
 opts = parser
-  .option('username', {
-    abbr: 'u'
+  .option('owner', {
+    abbr: 'o'
   , help: 'owner of the Github repository'
   , required: true
   })
@@ -75,7 +76,7 @@ Promise.promisifyAll(github.pullRequests);
 
 var getTags = function(){
   var tagOpts = {
-    user: opts.username
+    user: opts.owner
   , repo: opts.repository
   };
   return github.repos.getTagsAsync(tagOpts).map(function(ref){
@@ -97,7 +98,7 @@ var getTags = function(){
 var getPullRequests = function(){
 
   var issueOpts = {
-    user: opts.username
+    user: opts.owner
   , repo: opts.repository
   , state: 'closed'
   , sort: 'updated'
@@ -107,21 +108,32 @@ var getPullRequests = function(){
   // , since: null // TODO: this is an improvement to save API calls
   };
 
-  var getAllIssues = function(options, allIssues){
-    if (!allIssues) allIssues = [];
+  var getIssues = function(options){
     return github.issues.repoIssuesAsync(options).then(function(issues){
-      allIssues = allIssues.concat(issues);
-      // console.log('issues pulled - ', issues.length);
-      // console.log('issues page - ', options.page);
-      if (issues.length >= 100) {
-        options.page++;
-        return getAllIssues(options, allIssues);
-      }
-      return allIssues;
+      console.log('issues pulled - ', issues.length);
+      console.log('issues page - ', options.page);
+      return issues;
     });
   };
 
-  return getAllIssues(issueOpts).map(function(issue){
+  return github.issues.repoIssuesAsync(issueOpts).then(function(issues){
+    console.log('issues pulled - ', issues.length);
+    console.log('issues page - ', issueOpts.page);
+    var totalPages = linkParser(issues.meta.link).last.page;
+
+    if (totalPages > issueOpts.page) {
+      var allReqs = [];
+      for(var i=issueOpts.page; i<totalPages; i++){
+        var newOptions = _.clone(issueOpts, true);
+        newOptions.page += i;
+        allReqs.push(getIssues(newOptions));
+      }
+      return Promise.all(allReqs).reduce(function(issues, moreIssues){
+        return issues.concat(moreIssues);
+      }, issues);
+    }
+    return issues;
+  }).map(function(issue){
     if (!issue.pull_request.html_url) return;
 
     return github.pullRequests.getAsync({
