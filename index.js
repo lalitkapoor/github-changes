@@ -161,7 +161,7 @@ var tagPr = function(sortedTags, pr) {
     if (tag.date < pr.merged_at) break;
     current = tag;
   }
-  if (!current) current = {name: 'LATEST', date: currentDate};
+  if (!current) current = {name: opts.tagname, date: currentDate};
   return current;
 };
 
@@ -203,7 +203,7 @@ var getGithubToken = function() {
 // instead of iterating over closed issues, look into this later.
 //
 // Even better yet. I might just be able to do this with git log.
-// tags: git log --tags --simplify-by-decoration --format="%ci %d"
+// tags: git log --tags --simplify-by-decoration --format="%ci%n%d"
 // prs: git log --grep="Merge pull request #" --format="%s%n%ci%n%b"
 
 getGithubToken()
