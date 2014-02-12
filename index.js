@@ -34,9 +34,14 @@ opts = parser
   , help: '(optional) tag name for upcoming release'
   , default: 'upcoming'
   })
+  .option('auth', {
+    abbr: 'a'
+  , help: '(optional) prompt to auth with Github - use this for private repos'
+  , flag: true
+  })
   .option('token', {
     abbr: 'k'
-  , help: '(optional) if not provided will prompt on authentication on first run'
+  , help: '(optional) need to use this or --auth for private repos'
   })
   .option('file', {
     abbr: 'f'
@@ -204,11 +209,13 @@ var formatter = function(data) {
 
 var getGithubToken = function() {
   if (opts.token) return Promise.resolve({token: opts.token});
-  return ghauth(authOptions);
+  if (opts.auth) return ghauth(authOptions);
+  return Promise.resolve({});
 };
 
 getGithubToken()
   .then(function(authData){
+    if (!authData.token) return;
     github.authenticate({
       type: 'oauth'
     , token: authData.token
