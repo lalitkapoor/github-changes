@@ -200,7 +200,11 @@ var getGithubToken = function() {
 };
 
 // It might be faster to just go through commits on the branch
-// instead of iterating over closed issues, look into this later
+// instead of iterating over closed issues, look into this later.
+//
+// Even better yet. I might just be able to do this with git log.
+// tags: git log --tags --simplify-by-decoration --format="%ci %d"
+// prs: git log --grep="Merge pull request #" --format="%s%n%ci%n%b"
 
 getGithubToken()
   .then(function(authData){
