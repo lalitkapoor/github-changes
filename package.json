@@ -1,0 +1,38 @@
+{
+  "name": "github-changes",
+  "version": "0.0.1",
+  "description": "generate changelog for github repos",
+  "main": "index.js",
+  "dependencies": {
+    "ghauth": "~0.0.0",
+    "github": "~0.1.12",
+    "bluebird": "~1.0.3",
+    "lodash": "~2.4.1",
+    "moment": "~2.5.1",
+    "nomnom": "~1.6.2",
+    "parse-link-header": "~0.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lalitkapoor/github-changes.git"
+  },
+  "keywords": [
+    "github",
+    "changelog",
+    "git",
+    "changes",
+    "history",
+    "changed",
+    "change"
+  ],
+  "author": "Lalit Kapoor <lalitkapoor@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lalitkapoor/github-changes/issues"
+  },
+  "homepage": "https://github.com/lalitkapoor/github-changes"
+}
