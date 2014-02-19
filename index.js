@@ -35,6 +35,11 @@ opts = parser
   , help: '(optional) tag name for upcoming release'
   , default: 'upcoming'
   })
+  .option('issuebody', {
+    abbr: 'i'
+  , help: '(optional) include the body of the issue'
+  , flag: true
+  })
   .option('auth', {
     abbr: 'a'
   , help: '(optional) prompt to auth with Github - use this for private repos'
@@ -59,10 +64,14 @@ opts = parser
 
 
 var currentDate = moment();
+
 var github = new GithubApi({
   version: '3.0.0'
 , timeout: 10000
 });
+
+// github auth token
+var token = null;
 
 // ~/.config/changelog.json will store the token
 var authOptions = {
@@ -79,7 +88,9 @@ var getTags = function(){
     user: opts.owner
   , repo: opts.repository
   };
+  auth();
   return github.repos.getTagsAsync(tagOpts).map(function(ref){
+    auth();
     return github.repos.getCommitAsync({
       user: tagOpts.user
     , repo: tagOpts.repo
@@ -109,6 +120,7 @@ var getPullRequests = function(){
   };
 
   var getIssues = function(options){
+    auth();
     return github.issues.repoIssuesAsync(options).then(function(issues){
       console.log('issues pulled - ', issues.length);
       console.log('issues page - ', options.page);
@@ -134,6 +146,7 @@ var getPullRequests = function(){
   }).map(function(issue){
     if (!issue.pull_request.html_url) return;
 
+    auth();
     return github.pullRequests.getAsync({
       user: issueOpts.user
     , repo: issueOpts.repo
@@ -143,6 +156,7 @@ var getPullRequests = function(){
       if (!pr.merged_at) return;
       return {
         title: pr.title
+      , body: pr.body
       , number: pr.number
       , html_url: pr.html_url
       , 'merged_at': moment(pr.merged_at)
@@ -212,7 +226,8 @@ var formatter = function(data) {
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user.login) output += " (@" + pr.user.login + ")";
-    output += "\n";
+    if (opts.issuebody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ");
+    output += "\n\n";
   });
   return output.trim();
 };
@@ -223,13 +238,15 @@ var getGithubToken = function() {
   return Promise.resolve({});
 };
 
+var auth = function() {
+  if (!token) return;
+  github.authenticate({type: 'oauth', token: token});
+};
+
 getGithubToken()
   .then(function(authData){
     if (!authData.token) return;
-    github.authenticate({
-      type: 'oauth'
-    , token: authData.token
-    });
+    token = authData.token;
   })
   .then(getTags)
   .then(function(tags){
