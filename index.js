@@ -42,17 +42,22 @@ opts = parser
   })
   .option('auth', {
     abbr: 'a'
-  , help: '(optional) prompt to auth with Github - use this for private repos'
+  , help: '(optional) prompt to auth with Github - use this for private repos and higer rate limits'
   , flag: true
   })
   .option('token', {
     abbr: 'k'
-  , help: '(optional) need to use this or --auth for private repos'
+  , help: '(optional) need to use this or --auth for private repos and higher rate limits'
   })
   .option('file', {
     abbr: 'f'
   , help: '(optional) name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
+  })
+  .option('verbose', {
+    abbr: 'v'
+  , help: 'output details'
+  , flag: true
   })
   // TODO
   // .option('template', {
@@ -122,8 +127,8 @@ var getPullRequests = function(){
   var getIssues = function(options){
     auth();
     return github.issues.repoIssuesAsync(options).then(function(issues){
-      console.log('issues pulled - ', issues.length);
-      console.log('issues page - ', options.page);
+      opts.verbose && console.log('issues pulled - ', issues.length);
+      opts.verbose && console.log('issues page - ', options.page);
       return issues;
     });
   };
@@ -167,23 +172,6 @@ var getPullRequests = function(){
     if (pr) scrubbed.push(pr);
     return scrubbed;
   }, [])
-  // this is to get all committers, commenting out to reduce number of requests
-  // .map(function(pr){
-  //   return github.pullRequests.getCommitsAsync({
-  //     user: meta.user
-  //   , repo: meta.repo
-  //   , number: pr.number
-  //   , per_page: 100
-  //   }).reduce(function(committers, commit){
-  //     // get committers
-  //     if (!commit || !commit.author || !commit.author.login) return committers;
-  //     if (committers.indexOf(commit.author.login) === -1) committers.push(commit.author.login);
-  //     return committers;
-  //   }, []).then(function(committers){
-  //     pr.committers = committers;
-  //     return pr;
-  //   });
-  // })
   .then(function(prs){
     return prs;
   });
@@ -216,13 +204,6 @@ var formatter = function(data) {
       output+= " (" + pr.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
       output+= "\n";
     }
-
-    // prepend with @ because these are the github usernames
-    // var committers = [];
-    // pr.committers.forEach(function(committer){
-    //   committers.push("@"+committer);
-    // });
-    // output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title + " (" + committers.join(',') + ")";
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user.login) output += " (@" + pr.user.login + ")";
@@ -261,13 +242,12 @@ getGithubToken()
   })
   .then(function(data){
     data = _.sortBy(data, 'tagDate').reverse();
-    // console.log(data);
     return data;
   })
   .then(function(data){
     fs.writeFileSync(opts.file, formatter(data));
   }).catch(function(error){
-    console.log('error', error);
-    console.log('stack', error.stack);
+    console.error('error', error);
+    console.error('stack', error.stack);
   })
 ;
