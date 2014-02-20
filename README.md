@@ -6,7 +6,7 @@ Generate changelogs for github repos
 `npm install -g github-changes`
 
 ```
-Usage: node index.js [options]
+Usage: node github-changes [options]
 
 Options:
    -o, --owner        owner of the Github repository
