@@ -3,6 +3,8 @@ github-changes
 
 Generate changelogs for github repos
 
+`npm install -g github-changes`
+
 ```
 Usage: node index.js [options]
 
