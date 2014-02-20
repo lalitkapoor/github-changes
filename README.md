@@ -1,12 +1,14 @@
 github-changes
 ==============
 
-Generate changelogs for github repos
+Generate a changelog based on merged pull requests
+
+See the CHANGELOG.md file as an example
 
 `npm install -g github-changes`
 
 ```
-Usage: node github-changes [options]
+Usage: github-changes [options]
 
 Options:
    -o, --owner        owner of the Github repository
