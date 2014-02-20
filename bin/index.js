@@ -1,7 +1,10 @@
-var parser = require('nomnom');
+#!/usr/bin/env node
+
 var fs = require('fs');
 var _ = require('lodash');
+var domain = require('domain');
 var moment = require('moment');
+var parser = require('nomnom');
 var Promise = require("bluebird");
 var GithubApi = require('github');
 var linkParser = require('parse-link-header');
@@ -224,30 +227,52 @@ var auth = function() {
   github.authenticate({type: 'oauth', token: token});
 };
 
-getGithubToken()
-  .then(function(authData){
-    if (!authData.token) return;
-    token = authData.token;
-  })
-  .then(getTags)
-  .then(function(tags){
-    allTags = _.sortBy(tags, 'date').reverse();
-    return;
-  })
-  .then(getPullRequests)
-  .map(function(pr){
-    pr.tag = tagPr(allTags, pr);
-    pr.tagDate = pr.tag.date;
-    return pr;
-  })
-  .then(function(data){
-    data = _.sortBy(data, 'tagDate').reverse();
-    return data;
-  })
-  .then(function(data){
-    fs.writeFileSync(opts.file, formatter(data));
-  }).catch(function(error){
-    console.error('error', error);
-    console.error('stack', error.stack);
-  })
-;
+var task = function() {
+  getGithubToken()
+    .then(function(authData){
+      if (!authData.token) return;
+      token = authData.token;
+    })
+    .then(getTags)
+    .then(function(tags){
+      allTags = _.sortBy(tags, 'date').reverse();
+      return;
+    })
+    .then(getPullRequests)
+    .map(function(pr){
+      pr.tag = tagPr(allTags, pr);
+      pr.tagDate = pr.tag.date;
+      return pr;
+    })
+    .then(function(data){
+      data = _.sortBy(data, 'tagDate').reverse();
+      return data;
+    })
+    .then(function(data){
+      fs.writeFileSync(opts.file, formatter(data));
+    })
+    .then(function(){
+      process.exit(0);
+    })
+    .catch(function(error){
+      console.error('error', error);
+      console.error('stack', error.stack);
+      process.exit(1);
+    })
+  ;
+};
+
+var done = function (error) {
+  if (!error) process.exit(0);
+  console.log(error);
+  console.log(error.stack);
+  process.exit(1);
+};
+
+var runner = function () {
+  var d = domain.create();
+  d.on('error', done);
+  d.run(task);
+};
+
+runner();

@@ -2,7 +2,10 @@
   "name": "github-changes",
   "version": "0.0.1",
   "description": "generate changelog for github repos",
-  "main": "index.js",
+  "main": "./bin/index.js",
+  "bin": {
+    "github-changes": "./bin/index.js"
+  },
   "dependencies": {
     "ghauth": "~0.0.0",
     "github": "~0.1.12",
