@@ -137,7 +137,8 @@ var getPullRequests = function(){
   };
 
   return getIssues(issueOpts).then(function(issues){
-    var totalPages = linkParser(issues.meta.link).last.page;
+    var linkHeader = linkParser(issues.meta.link)
+    var totalPages = (linkHeader && linkHeader.last) ? linkHeader.last.page : 1;
 
     if (totalPages > issueOpts.page) {
       var allReqs = [];
