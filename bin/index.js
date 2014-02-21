@@ -234,12 +234,13 @@ var task = function() {
       if (!authData.token) return;
       token = authData.token;
     })
-    .then(getTags)
-    .then(function(tags){
-      allTags = _.sortBy(tags, 'date').reverse();
-      return;
+    .then(function(){
+      return Promise.all([getTags(), getPullRequests()])
     })
-    .then(getPullRequests)
+    .spread(function(tags, prs){
+      allTags = _.sortBy(tags, 'date').reverse();
+      return prs;
+    })
     .map(function(pr){
       pr.tag = tagPr(allTags, pr);
       pr.tagDate = pr.tag.date;
