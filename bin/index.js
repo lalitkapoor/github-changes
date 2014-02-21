@@ -45,7 +45,7 @@ opts = parser
   })
   .option('auth', {
     abbr: 'a'
-  , help: '(optional) prompt to auth with Github - use this for private repos and higer rate limits'
+  , help: '(optional) prompt to auth with Github - use this for private repos and higher rate limits'
   , flag: true
   })
   .option('token', {
