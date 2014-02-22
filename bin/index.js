@@ -2,6 +2,8 @@
 
 var fs = require('fs');
 var _ = require('lodash');
+var http = require('http');
+var https = require('https');
 var domain = require('domain');
 var moment = require('moment');
 var parser = require('nomnom');
@@ -9,6 +11,11 @@ var Promise = require("bluebird");
 var GithubApi = require('github');
 var linkParser = require('parse-link-header');
 var ghauth = Promise.promisify(require('ghauth'));
+var commitStream = require('github-commit-stream'); //replace me
+
+// Increase number of concurrent requests
+http.globalAgent.maxSockets = 30;
+https.globalAgent.maxSockets = 30;
 
 // It might be faster to just go through commits on the branch
 // instead of iterating over closed issues, look into this later.
@@ -28,6 +35,17 @@ opts = parser
   , help: 'name of the Github repository'
   , required: true
   })
+  .option('data', {
+    abbr: 'd'
+  , help: 'use pull requests or commits to generate the changelog'
+  , choices: ['pulls', 'commits']
+  , default: 'pulls'
+  })
+  // .option('filter', {
+  //   abbr: 'g'
+  // , help: 'regex for filtering data'
+  // , default: null
+  // })
   .option('branch', {
     abbr: 'b'
   , help: '(optional) name of the default branch'
@@ -91,6 +109,9 @@ Promise.promisifyAll(github.repos);
 Promise.promisifyAll(github.issues);
 Promise.promisifyAll(github.pullRequests);
 
+// TODO: Could probably fetch releases so we don't have to get the commit data
+// for the sha of each tag to figure out the date. Could save alot on api
+// calls.
 var getTags = function(){
   var tagOpts = {
     user: opts.owner
@@ -104,6 +125,7 @@ var getTags = function(){
     , repo: tagOpts.repo
     , sha: ref.commit.sha
     }).then(function(commit){
+      opts.verbose && console.log('pulled commit data for tag - ', ref.name);
       return {
         name: ref.name
       , date: moment(commit.commit.committer.date)
@@ -181,6 +203,25 @@ var getPullRequests = function(){
   });
 };
 
+var getAllCommits = function() {
+  return new Promise(function(resolve, reject){
+    var commits = [];
+    commitStream({
+      token: token
+    , user: opts.owner
+    , repo: opts.repository
+    , sha: opts.branch
+    , per_page: 100
+    }).on('data', function(data){
+      commits = commits.concat(data);
+    }).on('end', function(error){
+      if (error) return reject(error);
+      // console.log(commits.length);
+      // console.log(commits[0]);
+      return resolve(commits);
+    });
+  })
+}
 
 // sortedTags must be an array of tag data sorted by tag date DESC
 var tagPr = function(sortedTags, pr) {
@@ -194,7 +235,19 @@ var tagPr = function(sortedTags, pr) {
   return current;
 };
 
-var formatter = function(data) {
+// sortedTags must be an array of tag data sorted by tag date DESC
+var tagCommit = function(sortedTags, commit) {
+  var current = null;
+  for (var i=0, len=sortedTags.length; i < len; i++) {
+    var tag = sortedTags[i];
+    if (tag.date < moment(commit.commit.author.date)) break;
+    current = tag;
+  }
+  if (!current) current = {name: opts.tagname, date: currentDate};
+  return current;
+};
+
+var prFormatter = function(data) {
   var currentTagName = '';
   var output = "## Change Log\n";
   data.forEach(function(pr){
@@ -212,6 +265,28 @@ var formatter = function(data) {
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user.login) output += " (@" + pr.user.login + ")";
     if (opts.issuebody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ");
+    output += "\n\n";
+  });
+  return output.trim();
+};
+
+var commitFormatter = function(data) {
+  var currentTagName = '';
+  var output = "## Change Log\n";
+  data.forEach(function(commit){
+    if (commit.tag === null) {
+      currentTagName = opts.tagname;
+      output+= "\n### " + opts.tagname;
+      output+= "\n";
+    } else if (commit.tag.name != currentTagName) {
+      currentTagName = commit.tag.name;
+      output+= "\n### " + commit.tag.name
+      output+= " (" + commit.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+      output+= "\n";
+    }
+
+    output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + commit.commit.message.split('\n')[0];
+    if (commit.author && commit.author.login) output += " (@" + commit.author.login + ")";
     output += "\n\n";
   });
   return output.trim();
@@ -251,7 +326,43 @@ var task = function() {
       return data;
     })
     .then(function(data){
-      fs.writeFileSync(opts.file, formatter(data));
+      fs.writeFileSync(opts.file, prFormatter(data));
+    })
+    .then(function(){
+      process.exit(0);
+    })
+    .catch(function(error){
+      console.error('error', error);
+      console.error('stack', error.stack);
+      process.exit(1);
+    })
+  ;
+};
+
+var task2 = function() {
+  getGithubToken()
+    .then(function(authData){
+      if (!authData.token) return;
+      token = authData.token;
+    })
+    .then(function(){
+      return Promise.all([getTags(), getAllCommits()])
+    })
+    .spread(function(tags, commits){
+      allTags = _.sortBy(tags, 'date').reverse();
+      return commits;
+    })
+    .map(function(data){
+      data.tag = tagCommit(allTags, data);
+      data.tagDate = data.tag.date;
+      return data;
+    })
+    .then(function(data){
+      data = _.sortBy(data, 'tagDate').reverse();
+      return data;
+    })
+    .then(function(data){
+      fs.writeFileSync(opts.file, commitFormatter(data));
     })
     .then(function(){
       process.exit(0);
@@ -274,7 +385,7 @@ var done = function (error) {
 var runner = function () {
   var d = domain.create();
   d.on('error', done);
-  d.run(task);
+  d.run(task2);
 };
 
 runner();
