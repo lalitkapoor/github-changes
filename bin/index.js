@@ -226,7 +226,7 @@ var getData = function() {
 
 var tagger = function(sortedTags, data) {
   var date = null;
-  if (opts.data === 'commits') date = moment(data.commit.author.date);
+  if (opts.data === 'commits') date = moment(data.commit.committer.date);
   else date = data.merged_at;
 
   var current = null;
