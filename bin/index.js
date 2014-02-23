@@ -256,8 +256,8 @@ var prFormatter = function(data) {
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user.login) output += " (@" + pr.user.login + ")";
-    if (opts.issuebody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ");
-    output += "\n\n";
+    if (opts.issuebody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
+    output += "\n";
   });
   return output.trim();
 };
@@ -279,7 +279,7 @@ var commitFormatter = function(data) {
 
     output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + commit.commit.message.split('\n')[0];
     if (commit.author && commit.author.login) output += " (@" + commit.author.login + ")";
-    output += "\n\n";
+    output += "\n";
   });
   return output.trim();
 };
