@@ -1,6 +1,10 @@
 ## Change Log
 
-### v0.0.3 (2014/02/23 08:23 +00:00)
+### v0.0.4 (2014/02/23 08:42 +00:00)
+- [#7](https://github.com/lalitkapoor/github-changes/pull/7) use commit date not author date when determining which commits belong to which tags (@lalitkapoor)
+
+
+### v0.0.3 (2014/02/23 08:24 +00:00)
 - [#2](https://github.com/lalitkapoor/github-changes/pull/2) Fixed typos. (@Fraser999)
 
 - [#4](https://github.com/lalitkapoor/github-changes/pull/4) consider generating changelog based on commit messages (@lalitkapoor)
