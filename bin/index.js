@@ -2,6 +2,8 @@
 
 var fs = require('fs');
 var _ = require('lodash');
+var http = require('http');
+var https = require('https');
 var domain = require('domain');
 var moment = require('moment');
 var parser = require('nomnom');
@@ -9,6 +11,10 @@ var Promise = require("bluebird");
 var GithubApi = require('github');
 var linkParser = require('parse-link-header');
 var ghauth = Promise.promisify(require('ghauth'));
+
+// Increase number of concurrent requests
+http.globalAgent.maxSockets = 30;
+https.globalAgent.maxSockets = 30;
 
 // It might be faster to just go through commits on the branch
 // instead of iterating over closed issues, look into this later.
