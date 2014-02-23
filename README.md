@@ -13,6 +13,7 @@ Usage: github-changes [options]
 Options:
    -o, --owner        owner of the Github repository
    -r, --repository   name of the Github repository
+   -d, --data         (optional) use pull requests or commits (choices: pulls, commits)  [pulls]
    -b, --branch       (optional) name of the default branch  [master]
    -n, --tagname      (optional) tag name for upcoming release  [upcoming]
    -i, --issuebody    (optional) include the body of the issue
