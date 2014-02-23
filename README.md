@@ -1,7 +1,7 @@
 github-changes
 ==============
 
-Generate a changelog based on merged pull requests
+Generate a changelog based on merged pull requests or commit messages
 
 See the CHANGELOG.md file as an example
 
