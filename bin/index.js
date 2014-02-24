@@ -76,6 +76,22 @@ opts = parser
     help: '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')'
   , flag: true
   })
+  .option('no-merges', {
+    help: 'do not include merges'
+  , flag: true
+  })
+  .option('only-merges', {
+    help: 'only include merges'
+  , flag: true
+  })
+  .option('only-pulls', {
+    help: 'only include pull requests'
+  , flag: true
+  })
+  .option('use-commit-body', {
+    help: 'use the commit body of a merge instead of the message - "Merge branch..."'
+  , flag: true
+  })
   // TODO
   // .option('template', {
   //   abbr: 't'
@@ -84,6 +100,7 @@ opts = parser
   .parse()
 ;
 
+if (opts['only-pulls']) opts.merges = true;
 
 var currentDate = moment();
 
@@ -258,6 +275,23 @@ var commitFormatter = function(data) {
   var currentTagName = '';
   var output = "## Change Log\n";
   data.forEach(function(commit){
+    // exits
+    if ((opts.merges === false) && commit.parents.length > 1) return '';
+    if ((opts['only-merges']) && commit.parents.length < 2) return '';
+    if (
+      (opts['only-pulls'])
+    && !(/^Merge pull request #/i.test(commit.commit.message))
+    ) return '';
+
+    var messages = commit.commit.message.split('\n');
+    var message = messages[0];
+
+    if ((opts['only-merges'] || opts['only-pulls']) && opts['use-commit-body']) {
+      messages.shift();
+      message = messages.join(' ').trim();
+      if (message === '') return;
+    }
+
     if (commit.tag === null) {
       currentTagName = opts['tag-name'];
       output+= "\n### " + opts['tag-name'];
@@ -269,7 +303,7 @@ var commitFormatter = function(data) {
       output+= "\n";
     }
 
-    output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + commit.commit.message.split('\n')[0];
+    output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
     if (commit.author && commit.author.login) output += " (@" + commit.author.login + ")";
     output += "\n";
   });
