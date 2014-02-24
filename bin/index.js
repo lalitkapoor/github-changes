@@ -29,47 +29,47 @@ https.globalAgent.maxSockets = 30;
 opts = parser
   .option('owner', {
     abbr: 'o'
-  , help: 'owner of the Github repository'
+  , help: '(required) owner of the Github repository'
   , required: true
   })
   .option('repository', {
     abbr: 'r'
-  , help: 'name of the Github repository'
+  , help: '(required) name of the Github repository'
   , required: true
   })
   .option('data', {
     abbr: 'd'
-  , help: '(optional) use pull requests or commits (choices: pulls, commits)'
+  , help: 'use pull requests or commits (choices: pulls, commits)'
   , choices: ['pulls', 'commits']
   , default: 'pulls'
   })
   .option('branch', {
     abbr: 'b'
-  , help: '(optional) name of the default branch'
+  , help: 'name of the default branch'
   , default: 'master'
   })
   .option('tagname', {
     abbr: 'n'
-  , help: '(optional) tag name for upcoming release'
+  , help: 'tag name for upcoming release'
   , default: 'upcoming'
   })
   .option('issuebody', {
     abbr: 'i'
-  , help: '(optional) include the body of the issue'
+  , help: 'include the body of the issue'
   , flag: true
   })
   .option('auth', {
     abbr: 'a'
-  , help: '(optional) prompt to auth with Github - use this for private repos and higher rate limits'
+  , help: 'prompt to auth with Github - use this for private repos and higher rate limits'
   , flag: true
   })
   .option('token', {
     abbr: 'k'
-  , help: '(optional) need to use this or --auth for private repos and higher rate limits'
+  , help: 'need to use this or --auth for private repos and higher rate limits'
   })
   .option('file', {
     abbr: 'f'
-  , help: '(optional) name of the file to output the changelog to'
+  , help: 'name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
   })
   .option('verbose', {
