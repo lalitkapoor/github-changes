@@ -1,11 +1,9 @@
-github-changes
+github-changes [![NPM version](https://badge.fury.io/js/github-changes.png)](http://badge.fury.io/js/github-changes) 
 ==============
 
 Generate a changelog based on merged pull requests or commit messages
 
-See the CHANGELOG.md file as an example
-
-`npm install -g github-changes`
+[![NPM](https://nodei.co/npm/github-changes.png)](https://nodei.co/npm/github-changes/)
 
 ```
 Usage: github-changes [options]
