@@ -53,11 +53,6 @@ opts = parser
   , help: 'tag name for upcoming release'
   , default: 'upcoming'
   })
-  .option('issuebody', {
-    abbr: 'i'
-  , help: 'include the body of the issue'
-  , flag: true
-  })
   .option('auth', {
     abbr: 'a'
   , help: 'prompt to auth with Github - use this for private repos and higher rate limits'
