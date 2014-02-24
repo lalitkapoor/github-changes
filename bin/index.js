@@ -181,14 +181,7 @@ var getPullRequests = function(){
     }).then(function(pr){
       if (pr.base.ref !== opts.branch) return;
       if (!pr.merged_at) return;
-      return {
-        title: pr.title
-      , body: pr.body
-      , number: pr.number
-      , html_url: pr.html_url
-      , 'merged_at': moment(pr.merged_at)
-      , user: {login: (pr.user||0).login || null}
-      };
+      return pr;
     });
   }).reduce(function(scrubbed, pr){
     if (pr) scrubbed.push(pr);
@@ -227,7 +220,7 @@ var getData = function() {
 var tagger = function(sortedTags, data) {
   var date = null;
   if (opts.data === 'commits') date = moment(data.commit.committer.date);
-  else date = data.merged_at;
+  else date = moment(data.merged_at);
 
   var current = null;
   for (var i=0, len=sortedTags.length; i < len; i++) {
@@ -255,7 +248,7 @@ var prFormatter = function(data) {
     }
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
-    if (pr.user.login) output += " (@" + pr.user.login + ")";
+    if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
     if (opts.issuebody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
     output += "\n";
   });
