@@ -48,7 +48,7 @@ opts = parser
   , help: 'name of the default branch'
   , default: 'master'
   })
-  .option('tagname', {
+  .option('tag-name', {
     abbr: 'n'
   , help: 'tag name for upcoming release'
   , default: 'upcoming'
@@ -232,7 +232,7 @@ var tagger = function(sortedTags, data) {
     if (tag.date < date) break;
     current = tag;
   }
-  if (!current) current = {name: opts.tagname, date: currentDate};
+  if (!current) current = {name: opts['tag-name'], date: currentDate};
   return current;
 };
 
@@ -241,8 +241,8 @@ var prFormatter = function(data) {
   var output = "## Change Log\n";
   data.forEach(function(pr){
     if (pr.tag === null) {
-      currentTagName = opts.tagname;
-      output+= "\n### " + opts.tagname;
+      currentTagName = opts['tag-name'];
+      output+= "\n### " + opts['tag-name'];
       output+= "\n";
     } else if (pr.tag.name != currentTagName) {
       currentTagName = pr.tag.name;
@@ -264,8 +264,8 @@ var commitFormatter = function(data) {
   var output = "## Change Log\n";
   data.forEach(function(commit){
     if (commit.tag === null) {
-      currentTagName = opts.tagname;
-      output+= "\n### " + opts.tagname;
+      currentTagName = opts['tag-name'];
+      output+= "\n### " + opts['tag-name'];
       output+= "\n";
     } else if (commit.tag.name != currentTagName) {
       currentTagName = commit.tag.name;
