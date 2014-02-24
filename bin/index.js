@@ -27,6 +27,7 @@ https.globalAgent.maxSockets = 30;
 
 // parse cli options
 opts = parser
+  .scriptName('github-changes')
   .option('owner', {
     abbr: 'o'
   , help: '(required) owner of the Github repository'
