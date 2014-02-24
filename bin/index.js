@@ -302,14 +302,14 @@ var task = function() {
     .then(function(){
       return Promise.all([getTags(), getData()])
     })
-    .spread(function(tags, prs){
+    .spread(function(tags, data){
       allTags = _.sortBy(tags, 'date').reverse();
-      return prs;
+      return data;
     })
-    .map(function(pr){
-      pr.tag = tagger(allTags, pr);
-      pr.tagDate = pr.tag.date;
-      return pr;
+    .map(function(data){
+      data.tag = tagger(allTags, data);
+      data.tagDate = data.tag.date;
+      return data;
     })
     .then(function(data){
       data = _.sortBy(data, 'tagDate').reverse();
