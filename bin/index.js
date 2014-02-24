@@ -39,9 +39,9 @@ opts = parser
   })
   .option('data', {
     abbr: 'd'
-  , help: 'use pull requests or commits (choices: pulls, commits)'
+  , help: '(DEPRECATED) use pull requests or commits (choices: pulls, commits)'
   , choices: ['pulls', 'commits']
-  , default: 'pulls'
+  , default: 'commits'
   })
   .option('branch', {
     abbr: 'b'
@@ -75,6 +75,10 @@ opts = parser
   .option('verbose', {
     abbr: 'v'
   , help: 'output details'
+  , flag: true
+  })
+  .option('issue-body', {
+    help: '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')'
   , flag: true
   })
   // TODO
@@ -249,7 +253,7 @@ var prFormatter = function(data) {
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
-    if (opts.issuebody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
+    if (opts['issue-body'] && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
     output += "\n";
   });
   return output.trim();
