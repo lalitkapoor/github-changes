@@ -80,7 +80,7 @@ github-changes -o goodybag -r mongo-sql -a --only-pulls --use-commit-body
 
 #### Generate changelog via commit messages
 ```bash
-github-changes -o npm -r npm -a -d commits
+github-changes -o npm -r npm -a
 ```
 
 #### Output
