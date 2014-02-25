@@ -7,6 +7,7 @@ var https = require('https');
 var domain = require('domain');
 var moment = require('moment');
 var parser = require('nomnom');
+var semver = require('semver');
 var Promise = require("bluebird");
 var GithubApi = require('github');
 var linkParser = require('parse-link-header');
@@ -91,6 +92,10 @@ opts = parser
   })
   .option('use-commit-body', {
     help: 'use the commit body of a merge instead of the message - "Merge branch..."'
+  , flag: true
+  })
+  .option('order-semver', {
+    help: 'use semantic versioning for the ordering instead of the tag date'
   , flag: true
   })
   // TODO
@@ -285,7 +290,7 @@ var commitFormatter = function(data) {
     ) return '';
 
     var messages = commit.commit.message.split('\n');
-    var message = messages.shift();
+    var message = messages.shift().trim();
 
     if (opts['use-commit-body'] && commit.parents.length > 1) {
       message = messages.join(' ').trim();
@@ -354,7 +359,15 @@ var task = function() {
       return data;
     })
     .then(function(data){
-      data = _.sortBy(data, 'tagDate').reverse();
+      // order by date DESC
+      if (!opts['order-semver']) return _.sortBy(data, 'tagDate').reverse();
+
+      // order by semver DESC
+      data = data.sort(function(a,b){
+        if (a.tag.name === opts['tag-name']) return 1;
+        if (b.tag.name === opts['tag-name']) return -1;
+        return semver.compare(a.tag.name, b.tag.name);
+      }).reverse();
       return data;
     })
     .then(function(data){
