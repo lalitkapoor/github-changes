@@ -1,6 +1,11 @@
 ## Change Log
 
-### v0.0.5 (2014/02/23 10:11 +00:00)
+### v0.0.6 (2014/02/25 06:20 +00:00)
+- [#13](https://github.com/lalitkapoor/github-changes/pull/13) don't strip down pull request object (@lalitkapoor)
+- [#14](https://github.com/lalitkapoor/github-changes/pull/14) flags to improve what merge items to into the changelog (@lalitkapoor)
+- [#16](https://github.com/lalitkapoor/github-changes/pull/16) when parsing pull request pr links not generated and attribution incorrect (@lalitkapoor)
+
+### v0.0.5 (2014/02/23 10:14 +00:00)
 - [#9](https://github.com/lalitkapoor/github-changes/pull/9) don't double space in the default formatter (@lalitkapoor)
 
 ### v0.0.4 (2014/02/23 08:43 +00:00)
