@@ -31,6 +31,7 @@ Options:
    --only-merges       only include merges
    --only-pulls        only include pull requests
    --use-commit-body   use the commit body of a merge instead of the message - "Merge branch..."
+   --order-semver      use semantic versioning for the ordering instead of the tag date
 ```
 
 ###Example usage:
