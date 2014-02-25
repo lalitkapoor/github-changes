@@ -1,6 +1,10 @@
 ## Change Log
 
-### v0.0.7 (2014/02/25 06:39 +00:00)
+### v0.0.8 (2014/02/25 08:04 +00:00)
+- [#18](https://github.com/lalitkapoor/github-changes/pull/18) Add a Bitdeli Badge to README (@bitdeli-chef)
+- [#15](https://github.com/lalitkapoor/github-changes/pull/15) add option to order versions based on semver instead of the tag date (@lalitkapoor)
+
+### v0.0.7 (2014/02/25 06:40 +00:00)
 - [#17](https://github.com/lalitkapoor/github-changes/pull/17) use-commit-body only works when only-pulls or only-merges is used (@lalitkapoor)
 
 ### v0.0.6 (2014/02/25 06:21 +00:00)
