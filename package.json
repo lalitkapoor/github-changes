@@ -39,5 +39,6 @@
   "bugs": {
     "url": "https://github.com/lalitkapoor/github-changes/issues"
   },
+  "preferGlobal": true,
   "homepage": "https://github.com/lalitkapoor/github-changes"
 }
