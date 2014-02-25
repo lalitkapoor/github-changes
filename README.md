@@ -37,7 +37,7 @@ Options:
 
 #### Generate changelog via pull requests
 ```bash
-github-changes -o goodybag -r mongo-sql -a
+github-changes -o goodybag -r mongo-sql -a --only-pulls --use-commit-body
 ```
 
 #### Output
