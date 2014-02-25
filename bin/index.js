@@ -285,10 +285,9 @@ var commitFormatter = function(data) {
     ) return '';
 
     var messages = commit.commit.message.split('\n');
-    var message = messages[0];
+    var message = messages.shift();
 
     if ((opts['only-merges'] || opts['only-pulls']) && opts['use-commit-body']) {
-      messages.shift();
       message = messages.join(' ').trim();
       if (message === '') return;
     }
@@ -304,8 +303,17 @@ var commitFormatter = function(data) {
       output+= "\n";
     }
 
-    output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
-    if (commit.author && commit.author.login) output += " (@" + commit.author.login + ")";
+    // if it's a pull request, then the link should be to the pull request
+    if (/^Merge pull request #/i.test(commit.commit.message)){
+      var prNumber = commit.commit.message.split('#')[1].split(' ')[0];
+      var author = commit.commit.message.split(/\#\d+\sfrom\s/)[1].split('/')[0];
+      var url = "https://github.com/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
+      output += "- [#" + prNumber + "](" + url + ") " + message;
+      output += " (@" + author + ")";
+    } else { //otherwise link to the commit
+      output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
+      if (commit.author && commit.author.login) output += " (@" + commit.author.login + ")";
+    }
     output += "\n";
   });
   return output.trim();
