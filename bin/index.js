@@ -287,7 +287,7 @@ var commitFormatter = function(data) {
     var messages = commit.commit.message.split('\n');
     var message = messages.shift();
 
-    if ((opts['only-merges'] || opts['only-pulls']) && opts['use-commit-body']) {
+    if (opts['use-commit-body'] && commit.parents.length > 1) {
       message = messages.join(' ').trim();
       if (message === '') return;
     }
