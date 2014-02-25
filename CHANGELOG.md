@@ -1,6 +1,9 @@
 ## Change Log
 
-### v0.0.6 (2014/02/25 06:20 +00:00)
+### v0.0.7 (2014/02/25 06:39 +00:00)
+- [#17](https://github.com/lalitkapoor/github-changes/pull/17) use-commit-body only works when only-pulls or only-merges is used (@lalitkapoor)
+
+### v0.0.6 (2014/02/25 06:21 +00:00)
 - [#13](https://github.com/lalitkapoor/github-changes/pull/13) don't strip down pull request object (@lalitkapoor)
 - [#14](https://github.com/lalitkapoor/github-changes/pull/14) flags to improve what merge items to into the changelog (@lalitkapoor)
 - [#16](https://github.com/lalitkapoor/github-changes/pull/16) when parsing pull request pr links not generated and attribution incorrect (@lalitkapoor)
