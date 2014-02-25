@@ -27,54 +27,70 @@ https.globalAgent.maxSockets = 30;
 
 // parse cli options
 opts = parser
+  .scriptName('github-changes')
   .option('owner', {
     abbr: 'o'
-  , help: 'owner of the Github repository'
+  , help: '(required) owner of the Github repository'
   , required: true
   })
   .option('repository', {
     abbr: 'r'
-  , help: 'name of the Github repository'
+  , help: '(required) name of the Github repository'
   , required: true
   })
   .option('data', {
     abbr: 'd'
-  , help: '(optional) use pull requests or commits (choices: pulls, commits)'
+  , help: '(DEPRECATED) use pull requests or commits (choices: pulls, commits)'
   , choices: ['pulls', 'commits']
-  , default: 'pulls'
+  , default: 'commits'
   })
   .option('branch', {
     abbr: 'b'
-  , help: '(optional) name of the default branch'
+  , help: 'name of the default branch'
   , default: 'master'
   })
-  .option('tagname', {
+  .option('tag-name', {
     abbr: 'n'
-  , help: '(optional) tag name for upcoming release'
+  , help: 'tag name for upcoming release'
   , default: 'upcoming'
-  })
-  .option('issuebody', {
-    abbr: 'i'
-  , help: '(optional) include the body of the issue'
-  , flag: true
   })
   .option('auth', {
     abbr: 'a'
-  , help: '(optional) prompt to auth with Github - use this for private repos and higher rate limits'
+  , help: 'prompt to auth with Github - use this for private repos and higher rate limits'
   , flag: true
   })
   .option('token', {
     abbr: 'k'
-  , help: '(optional) need to use this or --auth for private repos and higher rate limits'
+  , help: 'need to use this or --auth for private repos and higher rate limits'
   })
   .option('file', {
     abbr: 'f'
-  , help: '(optional) name of the file to output the changelog to'
+  , help: 'name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
   })
   .option('verbose', {
     abbr: 'v'
   , help: 'output details'
+  , flag: true
+  })
+  .option('issue-body', {
+    help: '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')'
+  , flag: true
+  })
+  .option('no-merges', {
+    help: 'do not include merges'
+  , flag: true
+  })
+  .option('only-merges', {
+    help: 'only include merges'
+  , flag: true
+  })
+  .option('only-pulls', {
+    help: 'only include pull requests'
+  , flag: true
+  })
+  .option('use-commit-body', {
+    help: 'use the commit body of a merge instead of the message - "Merge branch..."'
   , flag: true
   })
   // TODO
@@ -85,6 +101,7 @@ opts = parser
   .parse()
 ;
 
+if (opts['only-pulls']) opts.merges = true;
 
 var currentDate = moment();
 
@@ -228,7 +245,7 @@ var tagger = function(sortedTags, data) {
     if (tag.date < date) break;
     current = tag;
   }
-  if (!current) current = {name: opts.tagname, date: currentDate};
+  if (!current) current = {name: opts['tag-name'], date: currentDate};
   return current;
 };
 
@@ -237,8 +254,8 @@ var prFormatter = function(data) {
   var output = "## Change Log\n";
   data.forEach(function(pr){
     if (pr.tag === null) {
-      currentTagName = opts.tagname;
-      output+= "\n### " + opts.tagname;
+      currentTagName = opts['tag-name'];
+      output+= "\n### " + opts['tag-name'];
       output+= "\n";
     } else if (pr.tag.name != currentTagName) {
       currentTagName = pr.tag.name;
@@ -249,7 +266,7 @@ var prFormatter = function(data) {
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
-    if (opts.issuebody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
+    if (opts['issue-body'] && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
     output += "\n";
   });
   return output.trim();
@@ -259,9 +276,26 @@ var commitFormatter = function(data) {
   var currentTagName = '';
   var output = "## Change Log\n";
   data.forEach(function(commit){
+    // exits
+    if ((opts.merges === false) && commit.parents.length > 1) return '';
+    if ((opts['only-merges']) && commit.parents.length < 2) return '';
+    if (
+      (opts['only-pulls'])
+    && !(/^Merge pull request #/i.test(commit.commit.message))
+    ) return '';
+
+    var messages = commit.commit.message.split('\n');
+    var message = messages[0];
+
+    if ((opts['only-merges'] || opts['only-pulls']) && opts['use-commit-body']) {
+      messages.shift();
+      message = messages.join(' ').trim();
+      if (message === '') return;
+    }
+
     if (commit.tag === null) {
-      currentTagName = opts.tagname;
-      output+= "\n### " + opts.tagname;
+      currentTagName = opts['tag-name'];
+      output+= "\n### " + opts['tag-name'];
       output+= "\n";
     } else if (commit.tag.name != currentTagName) {
       currentTagName = commit.tag.name;
@@ -270,7 +304,7 @@ var commitFormatter = function(data) {
       output+= "\n";
     }
 
-    output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + commit.commit.message.split('\n')[0];
+    output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
     if (commit.author && commit.author.login) output += " (@" + commit.author.login + ")";
     output += "\n";
   });
@@ -302,14 +336,14 @@ var task = function() {
     .then(function(){
       return Promise.all([getTags(), getData()])
     })
-    .spread(function(tags, prs){
+    .spread(function(tags, data){
       allTags = _.sortBy(tags, 'date').reverse();
-      return prs;
+      return data;
     })
-    .map(function(pr){
-      pr.tag = tagger(allTags, pr);
-      pr.tagDate = pr.tag.date;
-      return pr;
+    .map(function(data){
+      data.tag = tagger(allTags, data);
+      data.tagDate = data.tag.date;
+      return data;
     })
     .then(function(data){
       data = _.sortBy(data, 'tagDate').reverse();

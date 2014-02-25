@@ -1,4 +1,4 @@
-github-changes [![NPM version](https://badge.fury.io/js/github-changes.png)](http://badge.fury.io/js/github-changes) 
+github-changes [![NPM version](https://badge.fury.io/js/github-changes.png)](http://badge.fury.io/js/github-changes)
 ==============
 
 Generate a changelog based on merged pull requests or commit messages
@@ -7,20 +7,30 @@ Generate a changelog based on merged pull requests or commit messages
 
 FYI: This is under heavy development. Things may break between releases till I get to 0.1.0.
 
+### Installation
+
+```
+npm install -g github-changes
+```
+
 ```
 Usage: github-changes [options]
 
 Options:
-   -o, --owner        owner of the Github repository
-   -r, --repository   name of the Github repository
-   -d, --data         (optional) use pull requests or commits (choices: pulls, commits)  [pulls]
-   -b, --branch       (optional) name of the default branch  [master]
-   -n, --tagname      (optional) tag name for upcoming release  [upcoming]
-   -i, --issuebody    (optional) include the body of the issue
-   -a, --auth         (optional) prompt to auth with Github - use this for private repos and higher rate limits
-   -k, --token        (optional) need to use this or --auth for private repos and higher rate limits
-   -f, --file         (optional) name of the file to output the changelog to  [CHANGELOG.md]
-   -v, --verbose      output details
+   -o, --owner         (required) owner of the Github repository
+   -r, --repository    (required) name of the Github repository
+   -d, --data          (DEPRECATED) use pull requests or commits (choices: pulls, commits)  [commits]
+   -b, --branch        name of the default branch  [master]
+   -n, --tag-name      tag name for upcoming release  [upcoming]
+   -a, --auth          prompt to auth with Github - use this for private repos and higher rate limits
+   -k, --token         need to use this or --auth for private repos and higher rate limits
+   -f, --file          name of the file to output the changelog to  [CHANGELOG.md]
+   -v, --verbose       output details
+   --issue-body        (DEPRECATED) include the body of the issue (--data MUST equal 'pulls')
+   --no-merges         do not include merges
+   --only-merges       only include merges
+   --only-pulls        only include pull requests
+   --use-commit-body   use the commit body of a merge instead of the message - "Merge branch..."
 ```
 
 ###Example usage:
