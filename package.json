@@ -1,6 +1,6 @@
 {
   "name": "github-changes",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "generate changelog for github repos",
   "main": "./bin/index.js",
   "bin": {
