@@ -293,8 +293,7 @@ var commitFormatter = function(data) {
     var message = messages.shift().trim();
 
     if (opts['use-commit-body'] && commit.parents.length > 1) {
-      message = messages.join(' ').trim();
-      if (message === '') return;
+      message = messages.join(' ').trim() || message;
     }
 
     if (commit.tag === null) {
