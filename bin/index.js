@@ -215,6 +215,7 @@ var getPullRequests = function(){
 };
 
 var getAllCommits = function() {
+  var commitsBySha = {};
   opts.verbose && console.log('fetching commits');
   return new Promise(function(resolve, reject){
     var commits = [];
@@ -225,6 +226,7 @@ var getAllCommits = function() {
     , sha: opts.branch
     , per_page: 100
     }).on('data', function(data){
+      commitsBySha[data.sha] = data;
       commits = commits.concat(data);
     }).on('end', function(error){
       if (error) return reject(error);
@@ -277,6 +279,33 @@ var prFormatter = function(data) {
     output += "\n";
   });
   return output.trim();
+};
+
+var getCommitsInMerge = function(mergeCommit) {
+  // store reachable commits
+  var store1 = {};
+  var store2 = {};
+
+  var getAllReachableCommits = function(sha, store) {
+    store[sha]=true;
+    commitsBySha[sha].parents.forEach(function(parent){
+      return getAllReachableCommits(parent.sha, store);
+    })
+  };
+
+  var parentShas = _.pluck(mergeCommit.parents, 'sha');
+  var notSha = parentShas.shift(); // value to pass to --not flag in git log
+  parentShas.forEach(function(sha){
+    return getAllReachableCommits(sha, store1);
+  });
+  getAllReachableCommits(notSha, store2);
+
+  return _.difference(
+    Object.keys(store1)
+  , Object.keys(store2)
+  ).map(function(sha){
+    return commitsBySha[sha];
+  });
 };
 
 var commitFormatter = function(data) {
