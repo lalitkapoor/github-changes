@@ -358,14 +358,23 @@ var task = function() {
       return data;
     })
     .then(function(data){
-      // order by date DESC
-      if (!opts['order-semver']) return _.sortBy(data, 'tagDate').reverse();
+      // order by tag date then commit date DESC
+      if (!opts['order-semver']) {
+        data = data.sort(function(a,b){
+          var tagCompare = (a.tagDate - b.tagDate);
+          return (tagCompare) ? tagCompare : (moment(b.commit.committer.date) - moment(a.commit.committer.date));
+        }).reverse();
+        return data;
+      }
 
-      // order by semver DESC
+      // order by semver then commit date DESC
       data = data.sort(function(a,b){
-        if (a.tag.name === opts['tag-name']) return 1;
-        if (b.tag.name === opts['tag-name']) return -1;
-        return semver.compare(a.tag.name, b.tag.name);
+        var tagCompare = 0;
+        if (a.tag.name === b.tag.name) tagCompare = 0;
+        else if (a.tag.name === opts['tag-name']) tagCompare = 1;
+        else if (b.tag.name === opts['tag-name']) tagCompare -1;
+        else tagCompare = semver.compare(a.tag.name, b.tag.name);
+        return (tagCompare) ? tagCompare : (moment(b.commit.committer.date) - moment(a.commit.committer.date));
       }).reverse();
       return data;
     })
