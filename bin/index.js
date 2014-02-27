@@ -287,8 +287,10 @@ var getCommitsInMerge = function(mergeCommit) {
   var store2 = {};
 
   var getAllReachableCommits = function(sha, store) {
+    if (!commitsBySha[sha]) return;
     store[sha]=true;
     commitsBySha[sha].parents.forEach(function(parent){
+      if (store[parent.sha]) return; // don't revist commits we've explored
       return getAllReachableCommits(parent.sha, store);
     })
   };
