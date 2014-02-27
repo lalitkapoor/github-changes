@@ -119,7 +119,3 @@ github-changes -o npm -r npm -a
     - [f469847](https://github.com/npm/npm/commit/f46984787e8bb219cfd1d8394932dca2ed6b3b2c) test: express is not in mocks, use underscore instead (@isaacs)
 
     ...
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/lalitkapoor/github-changes/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
