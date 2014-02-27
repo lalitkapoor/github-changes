@@ -108,6 +108,7 @@ opts = parser
 
 if (opts['only-pulls']) opts.merges = true;
 
+var commitsBySha = {}; // populated when calling getAllCommits
 var currentDate = moment();
 
 var github = new GithubApi({
@@ -215,7 +216,6 @@ var getPullRequests = function(){
 };
 
 var getAllCommits = function() {
-  var commitsBySha = {};
   opts.verbose && console.log('fetching commits');
   return new Promise(function(resolve, reject){
     var commits = [];
