@@ -272,6 +272,8 @@ var prFormatter = function(data) {
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
     if (opts['issue-body'] && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
+
+    // output += " " + moment(pr.merged_at).utc().format("YYYY/MM/DD HH:mm Z");
     output += "\n";
   });
   return output.trim();
@@ -318,6 +320,8 @@ var commitFormatter = function(data) {
       output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
       if (commit.author && commit.author.login) output += " (@" + commit.author.login + ")";
     }
+
+    // output += " " + moment(commit.commit.committer.date).utc().format("YYYY/MM/DD HH:mm Z");
     output += "\n";
   });
   return output.trim();
@@ -359,10 +363,16 @@ var task = function() {
     })
     .then(function(data){
       // order by tag date then commit date DESC
-      if (!opts['order-semver']) {
+      if (!opts['order-semver'] && opts.data === 'commits') {
         data = data.sort(function(a,b){
           var tagCompare = (a.tagDate - b.tagDate);
           return (tagCompare) ? tagCompare : (moment(b.commit.committer.date) - moment(a.commit.committer.date));
+        }).reverse();
+        return data;
+      } else if (!opts['order-semver'] && opts.data === 'pulls') {
+        data = data.sort(function(a,b){
+          var tagCompare = (a.tagDate - b.tagDate);
+          return (tagCompare) ? tagCompare : (moment(b.merged_at) - moment(a.merged_at));
         }).reverse();
         return data;
       }
