@@ -1,6 +1,9 @@
 ## Change Log
 
-### v0.0.9 (2014/03/01 04:08 +00:00)
+### 0.0.10 (2014/03/01 06:01 +00:00)
+- [#26](https://github.com/lalitkapoor/github-changes/pull/26) handle missing author in pull requests (@lalitkapoor)
+
+### v0.0.9 (2014/03/01 04:09 +00:00)
 - [#22](https://github.com/lalitkapoor/github-changes/pull/22) show commit message if commit body is empty for --use-commit-body (@lalitkapoor)
 - [#23](https://github.com/lalitkapoor/github-changes/pull/23) though tagged correctly commit ordering may vary (@lalitkapoor)
 - [#24](https://github.com/lalitkapoor/github-changes/pull/24) sorting commits by date doesn't work for --data pulls (@lalitkapoor)
