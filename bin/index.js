@@ -315,7 +315,7 @@ var commitFormatter = function(data) {
   var output = "## Change Log\n";
   data.forEach(function(commit){
     var isMerge = (commit.parents.length > 1);
-    var isPull = /^Merge pull request #/i.test(commit.commit.message);
+    var isPull = isMerge && /^Merge pull request #/i.test(commit.commit.message);
     // exits
     if ((opts.merges === false) && isMerge) return '';
     if ((opts['only-merges']) && commit.parents.length < 2) return '';
@@ -365,7 +365,7 @@ var commitFormatter = function(data) {
     // if it's a pull request, then the link should be to the pull request
     if (isPull) {
       var prNumber = commit.commit.message.split('#')[1].split(' ')[0];
-      var author = commit.commit.message.split(/\#\d+\sfrom\s/)[1].split('/')[0];
+      var author = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
       var url = "https://github.com/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
