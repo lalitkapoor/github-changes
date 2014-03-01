@@ -58,7 +58,7 @@ Options:
 <h4>
 <a name="generate-changelog-via-pull-requests" class="anchor" href="#generate-changelog-via-pull-requests"><span class="octicon octicon-link"></span></a>Generate changelog via pull requests</h4>
 
-<div class="highlight highlight-bash"><pre>github-changes -o goodybag -r mongo-sql -a
+<div class="highlight highlight-bash"><pre>github-changes -o goodybag -r mongo-sql -a --only-pulls --use-commit-body
 </pre></div>
 
 <h4>
@@ -103,7 +103,7 @@ Options:
 <h4>
 <a name="generate-changelog-via-commit-messages" class="anchor" href="#generate-changelog-via-commit-messages"><span class="octicon octicon-link"></span></a>Generate changelog via commit messages</h4>
 
-<div class="highlight highlight-bash"><pre>github-changes -o npm -r npm -a -d commits
+<div class="highlight highlight-bash"><pre>github-changes -o npm -r npm -a
 </pre></div>
 
 <h4>
