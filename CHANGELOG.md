@@ -1,6 +1,12 @@
 ## Change Log
 
-### v0.0.8 (2014/02/25 08:04 +00:00)
+### v0.0.9 (2014/03/01 04:08 +00:00)
+- [#22](https://github.com/lalitkapoor/github-changes/pull/22) show commit message if commit body is empty for --use-commit-body (@lalitkapoor)
+- [#23](https://github.com/lalitkapoor/github-changes/pull/23) though tagged correctly commit ordering may vary (@lalitkapoor)
+- [#24](https://github.com/lalitkapoor/github-changes/pull/24) sorting commits by date doesn't work for --data pulls (@lalitkapoor)
+- [#21](https://github.com/lalitkapoor/github-changes/pull/21) attribution is not always correct for pull requests (@lalitkapoor)
+
+### v0.0.8 (2014/02/25 08:05 +00:00)
 - [#18](https://github.com/lalitkapoor/github-changes/pull/18) Add a Bitdeli Badge to README (@bitdeli-chef)
 - [#15](https://github.com/lalitkapoor/github-changes/pull/15) add option to order versions based on semver instead of the tag date (@lalitkapoor)
 
