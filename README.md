@@ -34,7 +34,7 @@ Options:
    --order-semver      use semantic versioning for the ordering instead of the tag date
 ```
 
-###Example usage:
+###Example usage
 
 #### Generate changelog via pull requests
 ```bash
