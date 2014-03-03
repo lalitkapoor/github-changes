@@ -5,7 +5,7 @@ Generate a changelog based on merged pull requests or commit messages
 
 [![NPM](https://nodei.co/npm/github-changes.png)](https://nodei.co/npm/github-changes/)
 
-FYI: This is under heavy development. Things may break between releases till I get to 0.1.0.
+This is under heavy development. Things may break between releases till I get to 0.1.0.
 
 ### Installation
 
