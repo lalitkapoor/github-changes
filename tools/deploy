@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+node ./bin -o lalitkapoor -r github-changes -a --only-pulls --use-commit-body
