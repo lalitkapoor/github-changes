@@ -74,6 +74,9 @@ opts = parser
   , help: 'output details'
   , flag: true
   })
+  .option('between-tags', {
+    help: 'only diff between these two tags, separate by 3 dots ...'
+  })
   .option('issue-body', {
     help: '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')'
   , flag: true
@@ -98,6 +101,11 @@ opts = parser
     help: 'use semantic versioning for the ordering instead of the tag date'
   , flag: true
   })
+  .option('hide-tag-names', {
+    help: 'hide tag names in changelog'
+  , flag: true
+  })
+
   // TODO
   // .option('template', {
   //   abbr: 't'
@@ -107,6 +115,10 @@ opts = parser
 ;
 
 if (opts['only-pulls']) opts.merges = true;
+
+var betweenTags = [null, null];
+var betweenTagsNames = null;
+if (opts['between-tags']) betweenTagsNames = opts['between-tags'].split('...');
 
 var commitsBySha = {}; // populated when calling getAllCommits
 var currentDate = moment();
@@ -146,10 +158,17 @@ var getTags = function(){
     , sha: ref.commit.sha
     }).then(function(commit){
       opts.verbose && console.log('pulled commit data for tag - ', ref.name);
-      return {
+      var tag = {
         name: ref.name
       , date: moment(commit.commit.committer.date)
       };
+
+      // if betweenTags is specified then
+      if (betweenTagsNames && (betweenTagsNames.indexOf(tag.name)>-1)) {
+        betweenTags[betweenTagsNames.indexOf(tag.name)] = tag;
+      }
+
+      return tag;
     });
   }).then(function(tags){
     return tags;
@@ -260,15 +279,17 @@ var prFormatter = function(data) {
   var currentTagName = '';
   var output = "## Change Log\n";
   data.forEach(function(pr){
-    if (pr.tag === null) {
-      currentTagName = opts['tag-name'];
-      output+= "\n### " + opts['tag-name'];
-      output+= "\n";
-    } else if (pr.tag.name != currentTagName) {
-      currentTagName = pr.tag.name;
-      output+= "\n### " + pr.tag.name
-      output+= " (" + pr.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
-      output+= "\n";
+    if (!opts['hide-tag-names']) {
+      if (pr.tag === null) {
+        currentTagName = opts['tag-name'];
+        output+= "\n### " + opts['tag-name'];
+        output+= "\n";
+      } else if (pr.tag.name != currentTagName) {
+        currentTagName = pr.tag.name;
+        output+= "\n### " + pr.tag.name
+        output+= " (" + pr.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+        output+= "\n";
+      }
     }
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
@@ -282,14 +303,24 @@ var prFormatter = function(data) {
 };
 
 var getCommitsInMerge = function(mergeCommit) {
+  // direct descendents of the mergeCommit
+  var directDescendents = {};
+
   // store reachable commits
   var store1 = {};
   var store2 = {};
+
+  var currentCommit = mergeCommit;
+  while (currentCommit && currentCommit.parents && currentCommit.parents.length > 0) {
+    directDescendents[currentCommit.parents[0].sha] = true;
+    currentCommit = commitsBySha[currentCommit.parents[0].sha];
+  }
 
   var getAllReachableCommits = function(sha, store) {
     if (!commitsBySha[sha]) return;
     store[sha]=true;
     commitsBySha[sha].parents.forEach(function(parent){
+      if (directDescendents[parent.sha]) return;
       if (store[parent.sha]) return; // don't revist commits we've explored
       return getAllReachableCommits(parent.sha, store);
     })
@@ -314,15 +345,15 @@ var commitFormatter = function(data) {
   var currentTagName = '';
   var output = "## Change Log\n";
   data.forEach(function(commit){
+    if (betweenTags && commit.tag.date<=betweenTags[0].date) return;
+    if (betweenTags && commit.tag.date>betweenTags[1].date) return;
+
     var isMerge = (commit.parents.length > 1);
     var isPull = isMerge && /^Merge pull request #/i.test(commit.commit.message);
     // exits
     if ((opts.merges === false) && isMerge) return '';
     if ((opts['only-merges']) && commit.parents.length < 2) return '';
-    if (
-      (opts['only-pulls'])
-    && !isPull
-    ) return '';
+    if ((opts['only-pulls']) && !isPull) return '';
 
     // choose message content
     var messages = commit.commit.message.split('\n');
@@ -332,15 +363,17 @@ var commitFormatter = function(data) {
       message = messages.join(' ').trim() || message;
     }
 
-    if (commit.tag === null) {
-      currentTagName = opts['tag-name'];
-      output+= "\n### " + opts['tag-name'];
-      output+= "\n";
-    } else if (commit.tag.name != currentTagName) {
-      currentTagName = commit.tag.name;
-      output+= "\n### " + commit.tag.name
-      output+= " (" + commit.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
-      output+= "\n";
+    if (!opts['hide-tag-names']) {
+      if (commit.tag === null) {
+        currentTagName = opts['tag-name'];
+        output+= "\n### " + opts['tag-name'];
+        output+= "\n";
+      } else if (commit.tag.name != currentTagName) {
+        currentTagName = commit.tag.name;
+        output+= "\n### " + commit.tag.name
+        output+= " (" + commit.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+        output+= "\n";
+      }
     }
 
     // if commit is a merge then find all commits that belong to the merge
