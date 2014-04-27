@@ -345,8 +345,8 @@ var commitFormatter = function(data) {
   var currentTagName = '';
   var output = "## Change Log\n";
   data.forEach(function(commit){
-    if (betweenTags && commit.tag.date<=betweenTags[0].date) return;
-    if (betweenTags && commit.tag.date>betweenTags[1].date) return;
+    if (betweenTagsNames && commit.tag.date<=betweenTags[0].date) return;
+    if (betweenTagsNames && commit.tag.date>betweenTags[1].date) return;
 
     var isMerge = (commit.parents.length > 1);
     var isPull = isMerge && /^Merge pull request #/i.test(commit.commit.message);
