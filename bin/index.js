@@ -71,11 +71,11 @@ opts = parser
   })
   .option('host', {
     help: 'alternate host name to use with github enterprise'
-  , default: 'github.com'
+  , default: null
   })
   .option('path-prefix', {
     help: 'path-prefix for use with github enterprise'
-  , default: ''
+  , default: null
   })
   .option('verbose', {
     abbr: 'v'
@@ -122,7 +122,8 @@ var currentDate = moment();
 var github = new GithubApi({
   version: '3.0.0'
 , timeout: 10000
-, pathPrefix: (opts['path-prefix'] == '') ? '' : opts['path-prefix']
+, protocol: 'https'
+, pathPrefix: opts['path-prefix']
 , host: opts.host
 });
 
