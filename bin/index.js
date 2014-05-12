@@ -69,6 +69,14 @@ opts = parser
   , help: 'name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
   })
+  .option('host', {
+    help: 'alternate host name to use with github enterprise'
+  , default: null
+  })
+  .option('path-prefix', {
+    help: 'path-prefix for use with github enterprise'
+  , default: null
+  })
   .option('verbose', {
     abbr: 'v'
   , help: 'output details'
@@ -114,6 +122,9 @@ var currentDate = moment();
 var github = new GithubApi({
   version: '3.0.0'
 , timeout: 10000
+, protocol: 'https'
+, pathPrefix: opts['path-prefix']
+, host: opts.host
 });
 
 // github auth token
@@ -221,6 +232,8 @@ var getAllCommits = function() {
     var commits = [];
     commitStream({
       token: token
+    , host: opts.host
+    , pathPrefix: (opts['path-prefix'] == '') ? '' : opts['path-prefix']
     , user: opts.owner
     , repo: opts.repository
     , sha: opts.branch
@@ -366,7 +379,7 @@ var commitFormatter = function(data) {
     if (isPull) {
       var prNumber = commit.commit.message.split('#')[1].split(' ')[0];
       var author = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
-      var url = "https://github.com/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
+      var url = "https://"+opts.host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
       if (authors.length)
