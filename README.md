@@ -26,6 +26,8 @@ Options:
    -k, --token         need to use this or --auth for private repos and higher rate limits
    -f, --file          name of the file to output the changelog to  [CHANGELOG.md]
    -v, --verbose       output details
+   --host              alternate host name to use with github enterprise
+   --path-prefix       path-prefix for use with github enterprise
    --issue-body        (DEPRECATED) include the body of the issue (--data MUST equal 'pulls')
    --no-merges         do not include merges
    --only-merges       only include merges
