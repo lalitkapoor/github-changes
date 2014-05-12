@@ -69,6 +69,11 @@ opts = parser
   , help: 'name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
   })
+  .option('verbose', {
+    abbr: 'v'
+  , help: 'output details'
+  , flag: true
+  })
   .option('host', {
     help: 'alternate host name to use with github enterprise'
   , default: null
@@ -76,11 +81,6 @@ opts = parser
   .option('path-prefix', {
     help: 'path-prefix for use with github enterprise'
   , default: null
-  })
-  .option('verbose', {
-    abbr: 'v'
-  , help: 'output details'
-  , flag: true
   })
   .option('issue-body', {
     help: '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')'
