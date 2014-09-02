@@ -76,7 +76,7 @@ opts = parser
   })
   .option('host', {
     help: 'alternate host name to use with github enterprise'
-  , default: null
+  , default: 'api.github.com'
   })
   .option('path-prefix', {
     help: 'path-prefix for use with github enterprise'
@@ -379,7 +379,8 @@ var commitFormatter = function(data) {
     if (isPull) {
       var prNumber = commit.commit.message.split('#')[1].split(' ')[0];
       var author = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
-      var url = "https://"+opts.host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
+      var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
+      var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
       if (authors.length)
