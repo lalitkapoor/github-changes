@@ -106,6 +106,10 @@ opts = parser
     help: 'use semantic versioning for the ordering instead of the tag date'
   , flag: true
   })
+  .option('reverse-changes', {
+    help: 'reverse the order of changes within a release (show oldest first)'
+  , flag: true
+  })
   // TODO
   // .option('template', {
   //   abbr: 't'
@@ -437,29 +441,32 @@ var task = function() {
       return data;
     })
     .then(function(data){
-      // order by tag date then commit date DESC
+      // order by commit date DESC by default / ASC if --reverse-changes given
+      var compareSign = (opts['reverse-changes']) ? -1 : 1;
+
+      // order by tag date then commit date
       if (!opts['order-semver'] && opts.data === 'commits') {
         data = data.sort(function(a,b){
           var tagCompare = (a.tagDate - b.tagDate);
-          return (tagCompare) ? tagCompare : (moment(b.commit.committer.date) - moment(a.commit.committer.date));
+          return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
         }).reverse();
         return data;
       } else if (!opts['order-semver'] && opts.data === 'pulls') {
         data = data.sort(function(a,b){
           var tagCompare = (a.tagDate - b.tagDate);
-          return (tagCompare) ? tagCompare : (moment(b.merged_at) - moment(a.merged_at));
+          return (tagCompare) ? tagCompare : compareSign * (moment(a.merged_at) - moment(b.merged_at));
         }).reverse();
         return data;
       }
 
-      // order by semver then commit date DESC
+      // order by semver then commit date
       data = data.sort(function(a,b){
         var tagCompare = 0;
         if (a.tag.name === b.tag.name) tagCompare = 0;
         else if (a.tag.name === opts['tag-name']) tagCompare = 1;
         else if (b.tag.name === opts['tag-name']) tagCompare -1;
         else tagCompare = semver.compare(a.tag.name, b.tag.name);
-        return (tagCompare) ? tagCompare : (moment(b.commit.committer.date) - moment(a.commit.committer.date));
+        return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
       }).reverse();
       return data;
     })
