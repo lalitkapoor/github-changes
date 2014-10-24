@@ -143,27 +143,36 @@ Promise.promisifyAll(github.pullRequests);
 // TODO: Could probably fetch releases so we don't have to get the commit data
 // for the sha of each tag to figure out the date. Could save alot on api
 // calls.
-var getTags = function(){
+var getTags = function(page){
+  page = page || 1;
   var tagOpts = {
     user: opts.owner
   , repo: opts.repository
-  };
+  , page: page
+  , per_page: 30
+  }
+  , tagCount = 0;
   auth();
-  return github.repos.getTagsAsync(tagOpts).map(function(ref){
-    auth();
-    return github.repos.getCommitAsync({
-      user: tagOpts.user
-    , repo: tagOpts.repo
-    , sha: ref.commit.sha
-    }).then(function(commit){
-      opts.verbose && console.log('pulled commit data for tag - ', ref.name);
-      return {
-        name: ref.name
-      , date: moment(commit.commit.committer.date)
-      };
+  return github.repos.getTagsAsync(tagOpts).then(function(refs) {
+    opts.verbose && console.log('got %d tags from page %d', refs.length, page);
+    var tags = refs.map(function(ref){
+      return github.repos.getCommitAsync({
+        user: tagOpts.user
+      , repo: tagOpts.repo
+      , sha: ref.commit.sha
+      }).then(function(commit){
+        opts.verbose && console.log('pulled commit data for tag - ', ref.name);
+        return {
+          name: ref.name
+        , date: moment(commit.commit.committer.date)
+        };
+      });
     });
-  }).then(function(tags){
-    return tags;
+    if (refs.length < tagOpts.per_page) {
+      return tags;
+    } else {
+      return tags.concat(getTags(tagOpts.page + 1));
+    }
   });
 };
 
@@ -425,7 +434,7 @@ var task = function() {
       token = authData.token;
     })
     .then(function(){
-      return Promise.all([getTags(), getData()])
+      return Promise.all([Promise.all(getTags()), getData()])
     })
     .spread(function(tags, data){
       allTags = _.sortBy(tags, 'date').reverse();
