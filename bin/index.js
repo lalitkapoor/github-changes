@@ -231,6 +231,7 @@ var getPullRequests = function(){
 };
 
 var getAllCommits = function() {
+  var progress = 0;
   opts.verbose && console.log('fetching commits');
   return new Promise(function(resolve, reject){
     var commits = [];
@@ -243,6 +244,9 @@ var getAllCommits = function() {
     , sha: opts.branch
     , per_page: 100
     }).on('data', function(data){
+      if (++progress % 100 == 0) {
+        opts.verbose && console.log('fetched %d commits', progress)
+      }
       commitsBySha[data.sha] = data;
       commits = commits.concat(data);
     }).on('end', function(error){
