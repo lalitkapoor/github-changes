@@ -147,6 +147,7 @@ var getTags = function(){
   var tagOpts = {
     user: opts.owner
   , repo: opts.repository
+  , per_page: 100
   };
   auth();
   return github.repos.getTagsAsync(tagOpts).map(function(ref){
