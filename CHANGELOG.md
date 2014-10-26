@@ -1,6 +1,9 @@
 ## Change Log
 
-### 0.0.12 (2014/09/02 05:36 +00:00)
+### v0.0.13 (2014/10/26 23:34 +00:00)
+- [#42](https://github.com/lalitkapoor/github-changes/pull/42) Fetch 100 tags per page (only 1 page for now) (@nylen)
+
+### v0.0.12 (2014/09/02 05:37 +00:00)
 - [#35](https://github.com/lalitkapoor/github-changes/pull/35) Update README.md with Grunt Plugin Info (@streetlight)
 - [#36](https://github.com/lalitkapoor/github-changes/pull/36) PR links point to https://null/... (@lalitkapoor)
 
