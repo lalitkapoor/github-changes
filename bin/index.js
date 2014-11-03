@@ -74,6 +74,11 @@ opts = parser
   , help: 'title to appear in the top of the changelog'
   , default: 'Change Log'
   })
+  .option('date-format', {
+    abbr: 'm'
+  , help: 'date format'
+  , default: '(YYYY/MM/DD HH:mm Z)'
+  })
   .option('verbose', {
     abbr: 'v'
   , help: 'output details'
@@ -286,7 +291,7 @@ var prFormatter = function(data) {
     } else if (pr.tag.name != currentTagName) {
       currentTagName = pr.tag.name;
       output+= "\n### " + pr.tag.name
-      output+= " (" + pr.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+      output+= " " + pr.tag.date.utc().format(opts['date-format']);
       output+= "\n";
     }
 
@@ -294,7 +299,7 @@ var prFormatter = function(data) {
     if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
     if (opts['issue-body'] && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
 
-    // output += " " + moment(pr.merged_at).utc().format("YYYY/MM/DD HH:mm Z");
+    // output += " " + moment(pr.merged_at).utc().format(opts['date-format']);
     output += "\n";
   });
   return output.trim();
@@ -358,7 +363,7 @@ var commitFormatter = function(data) {
     } else if (commit.tag.name != currentTagName) {
       currentTagName = commit.tag.name;
       output+= "\n### " + commit.tag.name
-      output+= " (" + commit.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+      output+= " " + commit.tag.date.utc().format(opts['date-format']);
       output+= "\n";
     }
 
@@ -402,7 +407,7 @@ var commitFormatter = function(data) {
         output += " (@" + commit.author.login + ")";
     }
 
-    // output += " " + moment(commit.commit.committer.date).utc().format("YYYY/MM/DD HH:mm Z");
+    // output += " " + moment(commit.commit.committer.date).utc().format(opts['date-format']);
     output += "\n";
   });
   return output.trim();
