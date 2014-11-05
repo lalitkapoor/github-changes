@@ -69,6 +69,11 @@ opts = parser
   , help: 'name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
   })
+  .option('title', {
+    abbr: 't'
+  , help: 'title to appear in the top of the changelog'
+  , default: 'Change Log'
+  })
   .option('verbose', {
     abbr: 'v'
   , help: 'output details'
@@ -272,7 +277,7 @@ var tagger = function(sortedTags, data) {
 
 var prFormatter = function(data) {
   var currentTagName = '';
-  var output = "## Change Log\n";
+  var output = "## " + opts.title + "\n";
   data.forEach(function(pr){
     if (pr.tag === null) {
       currentTagName = opts['tag-name'];
@@ -326,7 +331,7 @@ var getCommitsInMerge = function(mergeCommit) {
 
 var commitFormatter = function(data) {
   var currentTagName = '';
-  var output = "## Change Log\n";
+  var output = "## " + opts.title + "\n";
   data.forEach(function(commit){
     var isMerge = (commit.parents.length > 1);
     var isPull = isMerge && /^Merge pull request #/i.test(commit.commit.message);
