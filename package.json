@@ -17,7 +17,9 @@
     "github-commit-stream": "0.1.0",
     "semver": "2.2.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "json": "^9.0.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
