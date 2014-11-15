@@ -1,6 +1,11 @@
 ## Change Log
 
-### v0.0.13 (2014/10/26 23:34 +00:00)
+### v0.0.14 (2014/11/06 02:45 +00:00)
+- [#45](https://github.com/lalitkapoor/github-changes/pull/45) Add option to allow specifying the changelog title (@fixe)
+- [#46](https://github.com/lalitkapoor/github-changes/pull/46) Add option to allow specifying the date format (@fixe)
+- [#41](https://github.com/lalitkapoor/github-changes/pull/41) Aesthetic fixes (@nylen)
+
+### v0.0.13 (2014/10/26 23:25 +00:00)
 - [#42](https://github.com/lalitkapoor/github-changes/pull/42) Fetch 100 tags per page (only 1 page for now) (@nylen)
 
 ### v0.0.12 (2014/09/02 05:37 +00:00)
