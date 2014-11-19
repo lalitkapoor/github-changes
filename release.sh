@@ -10,4 +10,5 @@ VERSION=`cat package.json | json version`
 node bin/index.js -o lalitkapoor -r github-changes --only-pulls -v -a --use-commit-body --reverse-changes -n v$VERSION
 git commit --amend --no-edit
 git push origin master
+git push --tags
 npm publish
