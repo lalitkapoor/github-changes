@@ -30,6 +30,7 @@ Options:
    -v, --verbose       output details
    --host              alternate host name to use with github enterprise  [api.github.com]
    --path-prefix       path-prefix for use with github enterprise
+   --between-tags      only diff between these two tags, separate by 3 dots ...
    --issue-body        (DEPRECATED) include the body of the issue (--data MUST equal 'pulls')
    --no-merges         do not include merges
    --only-merges       only include merges
@@ -37,6 +38,7 @@ Options:
    --use-commit-body   use the commit body of a merge instead of the message - "Merge branch..."
    --order-semver      use semantic versioning for the ordering instead of the tag date
    --reverse-changes   reverse the order of changes within a release (show oldest first)
+   --hide-tag-names    hide tag names in changelog
 ```
 
 ###Example usage
