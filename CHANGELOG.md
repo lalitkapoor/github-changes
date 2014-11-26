@@ -1,5 +1,8 @@
 ## Change Log
 
+### v0.0.16 (2014/11/26 11:15 +00:00)
+- [#30](https://github.com/lalitkapoor/github-changes/pull/30) show changes between two tags (@lalitkapoor)
+
 ### v0.0.14 (2014/11/06 02:45 +00:00)
 - [#45](https://github.com/lalitkapoor/github-changes/pull/45) Add option to allow specifying the changelog title (@fixe)
 - [#46](https://github.com/lalitkapoor/github-changes/pull/46) Add option to allow specifying the date format (@fixe)
