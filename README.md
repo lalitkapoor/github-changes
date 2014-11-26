@@ -25,13 +25,18 @@ Options:
    -a, --auth          prompt to auth with Github - use this for private repos and higher rate limits
    -k, --token         need to use this or --auth for private repos and higher rate limits
    -f, --file          name of the file to output the changelog to  [CHANGELOG.md]
+   -t, --title         title to appear in the top of the changelog  [Change Log]
+   -m, --date-format   date format  [(YYYY/MM/DD HH:mm Z)]
    -v, --verbose       output details
+   --host              alternate host name to use with github enterprise  [api.github.com]
+   --path-prefix       path-prefix for use with github enterprise
    --issue-body        (DEPRECATED) include the body of the issue (--data MUST equal 'pulls')
    --no-merges         do not include merges
    --only-merges       only include merges
    --only-pulls        only include pull requests
    --use-commit-body   use the commit body of a merge instead of the message - "Merge branch..."
    --order-semver      use semantic versioning for the ordering instead of the tag date
+   --reverse-changes   reverse the order of changes within a release (show oldest first)
 ```
 
 ###Example usage
@@ -119,3 +124,13 @@ github-changes -o npm -r npm -a
     - [f469847](https://github.com/npm/npm/commit/f46984787e8bb219cfd1d8394932dca2ed6b3b2c) test: express is not in mocks, use underscore instead (@isaacs)
 
     ...
+
+### Using with Grunt
+
+If you want to generate a changelog within a grunt workflow, [a grunt plugin] (https://github.com/streetlight/grunt-github-changes) that can be utilized. To install:
+
+``` 
+npm install grunt-github-changes --save-dev
+```
+
+For further details and specifics on how to use (and to contribute), see [grunt-github-changes](https://github.com/streetlight/grunt-github-changes).

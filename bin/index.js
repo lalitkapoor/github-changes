@@ -69,10 +69,28 @@ opts = parser
   , help: 'name of the file to output the changelog to'
   , default: 'CHANGELOG.md'
   })
+  .option('title', {
+    abbr: 't'
+  , help: 'title to appear in the top of the changelog'
+  , default: 'Change Log'
+  })
+  .option('date-format', {
+    abbr: 'm'
+  , help: 'date format'
+  , default: '(YYYY/MM/DD HH:mm Z)'
+  })
   .option('verbose', {
     abbr: 'v'
   , help: 'output details'
   , flag: true
+  })
+  .option('host', {
+    help: 'alternate host name to use with github enterprise'
+  , default: 'api.github.com'
+  })
+  .option('path-prefix', {
+    help: 'path-prefix for use with github enterprise'
+  , default: null
   })
   .option('between-tags', {
     help: 'only diff between these two tags, separate by 3 dots ...'
@@ -101,6 +119,10 @@ opts = parser
     help: 'use semantic versioning for the ordering instead of the tag date'
   , flag: true
   })
+  .option('reverse-changes', {
+    help: 'reverse the order of changes within a release (show oldest first)'
+  , flag: true
+  })
   .option('hide-tag-names', {
     help: 'hide tag names in changelog'
   , flag: true
@@ -126,6 +148,9 @@ var currentDate = moment();
 var github = new GithubApi({
   version: '3.0.0'
 , timeout: 10000
+, protocol: 'https'
+, pathPrefix: opts['path-prefix']
+, host: opts.host
 });
 
 // github auth token
@@ -148,6 +173,7 @@ var getTags = function(){
   var tagOpts = {
     user: opts.owner
   , repo: opts.repository
+  , per_page: 100
   };
   auth();
   return github.repos.getTagsAsync(tagOpts).map(function(ref){
@@ -235,16 +261,22 @@ var getPullRequests = function(){
 };
 
 var getAllCommits = function() {
+  var progress = 0;
   opts.verbose && console.log('fetching commits');
   return new Promise(function(resolve, reject){
     var commits = [];
     commitStream({
       token: token
+    , host: opts.host
+    , pathPrefix: (opts['path-prefix'] == '') ? '' : opts['path-prefix']
     , user: opts.owner
     , repo: opts.repository
     , sha: opts.branch
     , per_page: 100
     }).on('data', function(data){
+      if (++progress % 100 == 0) {
+        opts.verbose && console.log('fetched %d commits', progress)
+      }
       commitsBySha[data.sha] = data;
       commits = commits.concat(data);
     }).on('end', function(error){
@@ -277,7 +309,7 @@ var tagger = function(sortedTags, data) {
 
 var prFormatter = function(data) {
   var currentTagName = '';
-  var output = "## Change Log\n";
+  var output = "## " + opts.title + "\n";
   data.forEach(function(pr){
     if (!opts['hide-tag-names']) {
       if (pr.tag === null) {
@@ -287,7 +319,7 @@ var prFormatter = function(data) {
       } else if (pr.tag.name != currentTagName) {
         currentTagName = pr.tag.name;
         output+= "\n### " + pr.tag.name
-        output+= " (" + pr.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+        output+= " " + pr.tag.date.utc().format(opts['date-format']);
         output+= "\n";
       }
     }
@@ -296,7 +328,7 @@ var prFormatter = function(data) {
     if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
     if (opts['issue-body'] && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
 
-    // output += " " + moment(pr.merged_at).utc().format("YYYY/MM/DD HH:mm Z");
+    // output += " " + moment(pr.merged_at).utc().format(opts['date-format']);
     output += "\n";
   });
   return output.trim();
@@ -343,7 +375,7 @@ var getCommitsInMerge = function(mergeCommit) {
 
 var commitFormatter = function(data) {
   var currentTagName = '';
-  var output = "## Change Log\n";
+  var output = "## " + opts.title + "\n";
   data.forEach(function(commit){
     if (betweenTagsNames && commit.tag.date<=betweenTags[0].date) return;
     if (betweenTagsNames && commit.tag.date>betweenTags[1].date) return;
@@ -371,7 +403,7 @@ var commitFormatter = function(data) {
       } else if (commit.tag.name != currentTagName) {
         currentTagName = commit.tag.name;
         output+= "\n### " + commit.tag.name
-        output+= " (" + commit.tag.date.utc().format("YYYY/MM/DD HH:mm Z") + ")";
+        output+= " " + commit.tag.date.utc().format(opts['date-format']);
         output+= "\n";
       }
     }
@@ -399,7 +431,8 @@ var commitFormatter = function(data) {
     if (isPull) {
       var prNumber = commit.commit.message.split('#')[1].split(' ')[0];
       var author = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
-      var url = "https://github.com/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
+      var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
+      var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
       if (authors.length)
@@ -415,7 +448,7 @@ var commitFormatter = function(data) {
         output += " (@" + commit.author.login + ")";
     }
 
-    // output += " " + moment(commit.commit.committer.date).utc().format("YYYY/MM/DD HH:mm Z");
+    // output += " " + moment(commit.commit.committer.date).utc().format(opts['date-format']);
     output += "\n";
   });
   return output.trim();
@@ -456,29 +489,32 @@ var task = function() {
       return data;
     })
     .then(function(data){
-      // order by tag date then commit date DESC
+      // order by commit date DESC by default / ASC if --reverse-changes given
+      var compareSign = (opts['reverse-changes']) ? -1 : 1;
+
+      // order by tag date then commit date
       if (!opts['order-semver'] && opts.data === 'commits') {
         data = data.sort(function(a,b){
           var tagCompare = (a.tagDate - b.tagDate);
-          return (tagCompare) ? tagCompare : (moment(b.commit.committer.date) - moment(a.commit.committer.date));
+          return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
         }).reverse();
         return data;
       } else if (!opts['order-semver'] && opts.data === 'pulls') {
         data = data.sort(function(a,b){
           var tagCompare = (a.tagDate - b.tagDate);
-          return (tagCompare) ? tagCompare : (moment(b.merged_at) - moment(a.merged_at));
+          return (tagCompare) ? tagCompare : compareSign * (moment(a.merged_at) - moment(b.merged_at));
         }).reverse();
         return data;
       }
 
-      // order by semver then commit date DESC
+      // order by semver then commit date
       data = data.sort(function(a,b){
         var tagCompare = 0;
         if (a.tag.name === b.tag.name) tagCompare = 0;
         else if (a.tag.name === opts['tag-name']) tagCompare = 1;
         else if (b.tag.name === opts['tag-name']) tagCompare -1;
         else tagCompare = semver.compare(a.tag.name, b.tag.name);
-        return (tagCompare) ? tagCompare : (moment(b.commit.committer.date) - moment(a.commit.committer.date));
+        return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
       }).reverse();
       return data;
     })

@@ -1,6 +1,21 @@
 ## Change Log
 
-### 0.0.10 (2014/03/01 06:01 +00:00)
+### v0.0.14 (2014/11/06 02:45 +00:00)
+- [#45](https://github.com/lalitkapoor/github-changes/pull/45) Add option to allow specifying the changelog title (@fixe)
+- [#46](https://github.com/lalitkapoor/github-changes/pull/46) Add option to allow specifying the date format (@fixe)
+- [#41](https://github.com/lalitkapoor/github-changes/pull/41) Aesthetic fixes (@nylen)
+
+### v0.0.13 (2014/10/26 23:25 +00:00)
+- [#42](https://github.com/lalitkapoor/github-changes/pull/42) Fetch 100 tags per page (only 1 page for now) (@nylen)
+
+### v0.0.12 (2014/09/02 05:37 +00:00)
+- [#35](https://github.com/lalitkapoor/github-changes/pull/35) Update README.md with Grunt Plugin Info (@streetlight)
+- [#36](https://github.com/lalitkapoor/github-changes/pull/36) PR links point to https://null/... (@lalitkapoor)
+
+### v0.0.11 (2014/05/12 19:01 +00:00)
+- [#32](https://github.com/lalitkapoor/github-changes/pull/32) support for github enterprise (@lalitkapoor, @calmdev)
+
+### v0.0.10 (2014/03/01 06:02 +00:00)
 - [#26](https://github.com/lalitkapoor/github-changes/pull/26) handle missing author in pull requests (@lalitkapoor)
 
 ### v0.0.9 (2014/03/01 04:09 +00:00)

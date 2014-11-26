@@ -1,6 +1,6 @@
 {
   "name": "github-changes",
-  "version": "0.0.10",
+  "version": "0.0.15",
   "description": "generate changelog for github repos",
   "main": "./bin/index.js",
   "bin": {
@@ -8,16 +8,18 @@
   },
   "dependencies": {
     "ghauth": "0.0.0",
-    "github": "0.1.12",
+    "github": "0.1.16",
     "bluebird": "1.0.3",
     "lodash": "2.4.1",
     "moment": "2.5.1",
     "nomnom": "1.6.2",
     "parse-link-header": "0.1.0",
-    "github-commit-stream": "0.0.1",
+    "github-commit-stream": "0.1.0",
     "semver": "2.2.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "json": "^9.0.2"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
