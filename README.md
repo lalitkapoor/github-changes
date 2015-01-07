@@ -1,6 +1,8 @@
 github-changes [![NPM version](https://badge.fury.io/js/github-changes.png)](http://badge.fury.io/js/github-changes)
 ==============
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lalitkapoor/github-changes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Generate a changelog based on merged pull requests or commit messages
 
 [![NPM](https://nodei.co/npm/github-changes.png)](https://nodei.co/npm/github-changes/)
