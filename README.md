@@ -7,8 +7,6 @@ Generate a changelog based on merged pull requests or commit messages
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/lalitkapoor/github-changes?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This is under heavy development. Things may break between releases till I get to 0.1.0.
-
 ### Installation
 
 ```
