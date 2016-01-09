@@ -7,7 +7,7 @@
     "github-changes": "./bin/index.js"
   },
   "dependencies": {
-    "ghauth": "0.0.0",
+    "ghauth": "3.0.0",
     "github": "0.1.16",
     "bluebird": "1.0.3",
     "lodash": "2.4.1",
