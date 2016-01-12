@@ -1,5 +1,11 @@
 ## Change Log
 
+### v1.0.1 (2016/01/12 01:52 +00:00)
+- [#52](https://github.com/lalitkapoor/github-changes/pull/52) Update ghauth dependency (@nunorafaelrocha)
+
+### v1.0.0 (2015/04/12 14:32 +00:00)
+- [#47](https://github.com/lalitkapoor/github-changes/pull/47) Add a Gitter chat badge to README.md (@gitter-badger)
+
 ### v0.0.16 (2014/11/26 11:15 +00:00)
 - [#30](https://github.com/lalitkapoor/github-changes/pull/30) show changes between two tags (@lalitkapoor)
 
@@ -12,7 +18,7 @@
 - [#42](https://github.com/lalitkapoor/github-changes/pull/42) Fetch 100 tags per page (only 1 page for now) (@nylen)
 
 ### v0.0.12 (2014/09/02 05:37 +00:00)
-- [#35](https://github.com/lalitkapoor/github-changes/pull/35) Update README.md with Grunt Plugin Info (@streetlight)
+- [#35](https://github.com/lalitkapoor/github-changes/pull/35) Update README.md with Grunt Plugin Info (@PunkChameleon)
 - [#36](https://github.com/lalitkapoor/github-changes/pull/36) PR links point to https://null/... (@lalitkapoor)
 
 ### v0.0.11 (2014/05/12 19:01 +00:00)
