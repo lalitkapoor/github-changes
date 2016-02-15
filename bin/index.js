@@ -95,6 +95,9 @@ opts = parser
   .option('between-tags', {
     help: 'only diff between these two tags, separate by 3 dots ...'
   })
+  .option('for-tag', {
+    help: 'only get changes for this tag'
+  })
   .option('issue-body', {
     help: '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')'
   , flag: true
@@ -141,6 +144,8 @@ if (opts['only-pulls']) opts.merges = true;
 var betweenTags = [null, null];
 var betweenTagsNames = null;
 if (opts['between-tags']) betweenTagsNames = opts['between-tags'].split('...');
+
+var forTag = opts['for-tag'];
 
 var commitsBySha = {}; // populated when calling getAllCommits
 var currentDate = moment();
@@ -378,7 +383,8 @@ var commitFormatter = function(data) {
   var output = "## " + opts.title + "\n";
   data.forEach(function(commit){
     if (betweenTagsNames && commit.tag.date<=betweenTags[0].date) return;
-    if (betweenTagsNames && commit.tag.date>betweenTags[1].date) return;
+    if (betweenTagsNames && betweenTags[1] && commit.tag.date>betweenTags[1].date) return;
+    if (forTag && commit.tag.name !== forTag) return;
 
     var isMerge = (commit.parents.length > 1);
     var isPull = isMerge && /^Merge pull request #/i.test(commit.commit.message);
