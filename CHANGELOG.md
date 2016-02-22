@@ -1,5 +1,8 @@
 ## Change Log
 
+### v1.0.2 (2016/02/22 00:53 +00:00)
+- [#53](https://github.com/lalitkapoor/github-changes/pull/53) added --for-tag option to generate changelog for single tag (@ivpusic)
+
 ### v1.0.1 (2016/01/12 01:52 +00:00)
 - [#52](https://github.com/lalitkapoor/github-changes/pull/52) Update ghauth dependency (@nunorafaelrocha)
 
