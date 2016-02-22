@@ -31,6 +31,7 @@ Options:
    --host              alternate host name to use with github enterprise  [api.github.com]
    --path-prefix       path-prefix for use with github enterprise
    --between-tags      only diff between these two tags, separate by 3 dots ...
+   --for-tag           only get changes for this tag
    --issue-body        (DEPRECATED) include the body of the issue (--data MUST equal 'pulls')
    --no-merges         do not include merges
    --only-merges       only include merges
@@ -131,7 +132,7 @@ github-changes -o npm -r npm -a
 
 If you want to generate a changelog within a grunt workflow, [a grunt plugin] (https://github.com/streetlight/grunt-github-changes) that can be utilized. To install:
 
-``` 
+```
 npm install grunt-github-changes --save-dev
 ```
 
