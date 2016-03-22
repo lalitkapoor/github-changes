@@ -130,10 +130,10 @@ github-changes -o npm -r npm -a
 
 ### Using with Grunt
 
-If you want to generate a changelog within a grunt workflow, [a grunt plugin] (https://github.com/streetlight/grunt-github-changes) that can be utilized. To install:
+If you want to generate a changelog within a grunt workflow, [a grunt plugin] (https://github.com/PunkChameleon/grunt-github-changes) that can be utilized. To install:
 
 ```
 npm install grunt-github-changes --save-dev
 ```
 
-For further details and specifics on how to use (and to contribute), see [grunt-github-changes](https://github.com/streetlight/grunt-github-changes).
+For further details and specifics on how to use (and to contribute), see [grunt-github-changes](https://github.com/PunkChameleon/grunt-github-changes).
