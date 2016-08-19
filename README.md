@@ -26,6 +26,7 @@ Options:
    -k, --token         need to use this or --auth for private repos and higher rate limits
    -f, --file          name of the file to output the changelog to  [CHANGELOG.md]
    -t, --title         title to appear in the top of the changelog  [Change Log]
+   -z, --time-zone     time zone  [UTC]
    -m, --date-format   date format  [(YYYY/MM/DD HH:mm Z)]
    -v, --verbose       output details
    --host              alternate host name to use with github enterprise  [api.github.com]
@@ -46,42 +47,39 @@ Options:
 
 #### Generate changelog via pull requests
 ```bash
-github-changes -o goodybag -r mongo-sql -a --only-pulls --use-commit-body
+github-changes -o lalitkapoor -r github-changes -a --only-pulls --use-commit-body
 ```
 
 #### Output
     ## Change Log
 
-    ### v2.3.3 (2014/02/20 00:22 +00:00)
-    - [#83](https://github.com/goodybag/mongo-sql/pull/83) Buffer not defined in browser (@jrf0110)
+    ### v1.0.3 (2016/08/19 08:25 +00:00)
+    - [#59](https://github.com/lalitkapoor/github-changes/pull/59) added --time-zone option (@YuG1224)
+    - [#55](https://github.com/lalitkapoor/github-changes/pull/55) Update README with correct links! (@PunkChameleon)
 
-    ### v2.3.2 (2014/02/19 23:54 +00:00)
-    - [#82](https://github.com/goodybag/mongo-sql/pull/82) Preserve Buffer query values. (@alexmingoia)
+    ### v1.0.2 (2016/02/22 00:53 +00:00)
+    - [#53](https://github.com/lalitkapoor/github-changes/pull/53) added --for-tag option to generate changelog for single tag (@ivpusic)
 
-    ### v2.3.1 (2014/02/08 23:01 +00:00)
-    - [#81](https://github.com/goodybag/mongo-sql/pull/81) Casts + JSON derefs are malformed during the automated quoting (@jrf0110)
+    ### v1.0.1 (2016/01/12 01:52 +00:00)
+    - [#52](https://github.com/lalitkapoor/github-changes/pull/52) Update ghauth dependency (@nunorafaelrocha)
 
-    ### v2.3.0 (2014/01/29 22:16 +00:00)
-    - [#25](https://github.com/goodybag/mongo-sql/pull/25) Querying on JSON (@jrf0110)
+    ### v1.0.0 (2015/04/12 14:32 +00:00)
+    - [#47](https://github.com/lalitkapoor/github-changes/pull/47) Add a Gitter chat badge to README.md (@gitter-badger)
 
-    ### v2.2.14 (2014/01/27 22:35 +00:00)
-    - [#78](https://github.com/goodybag/mongo-sql/pull/78) adding npm info (@lalitkapoor)
-    - [#80](https://github.com/goodybag/mongo-sql/pull/80) $nin does not support Array (@jrf0110)
+    ### v0.0.16 (2014/11/26 11:15 +00:00)
+    - [#30](https://github.com/lalitkapoor/github-changes/pull/30) show changes between two tags (@lalitkapoor)
 
-    ### v2.2.13 (2014/01/13 17:40 +00:00)
-    - [#77](https://github.com/goodybag/mongo-sql/pull/77) Expose `quoteColumn` on root namespace (@prestonp)
+    ### v0.0.14 (2014/11/06 02:45 +00:00)
+    - [#41](https://github.com/lalitkapoor/github-changes/pull/41) Aesthetic fixes (@nylen)
+    - [#46](https://github.com/lalitkapoor/github-changes/pull/46) Add option to allow specifying the date format (@fixe)
+    - [#45](https://github.com/lalitkapoor/github-changes/pull/45) Add option to allow specifying the changelog title (@fixe)
 
-    ### v2.2.12 (2013/11/26 20:57 +00:00)
-    - [#76](https://github.com/goodybag/mongo-sql/pull/76) Dates not handled correctly in update where clause (@jrf0110)
+    ### v0.0.13 (2014/10/26 23:25 +00:00)
+    - [#42](https://github.com/lalitkapoor/github-changes/pull/42) Fetch 100 tags per page (only 1 page for now) (@nylen)
 
-    ### v2.2.11 (2013/11/15 15:46 +00:00)
-    - [#74](https://github.com/goodybag/mongo-sql/pull/74) Drop constraint action needs options (@jrf0110)
-
-    ### v2.2.10 (2013/11/15 06:03 +00:00)
-    - [#73](https://github.com/goodybag/mongo-sql/pull/73) Action helper should accept an array of actions (@jrf0110)
-
-    ### v2.2.9 (2013/11/12 05:05 +00:00)
-    - [#70](https://github.com/goodybag/mongo-sql/pull/70) Window functions (@ProCynic)
+    ### v0.0.12 (2014/09/02 05:37 +00:00)
+    - [#36](https://github.com/lalitkapoor/github-changes/pull/36) PR links point to https://null/... (@lalitkapoor)
+    - [#35](https://github.com/lalitkapoor/github-changes/pull/35) Update README.md with Grunt Plugin Info (@PunkChameleon)
 
     ...
 
