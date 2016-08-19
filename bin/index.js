@@ -5,7 +5,7 @@ var _ = require('lodash');
 var http = require('http');
 var https = require('https');
 var domain = require('domain');
-var moment = require('moment');
+var moment = require('moment-timezone');
 var parser = require('nomnom');
 var semver = require('semver');
 var Promise = require("bluebird");
@@ -73,6 +73,11 @@ opts = parser
     abbr: 't'
   , help: 'title to appear in the top of the changelog'
   , default: 'Change Log'
+  })
+  .option('time-zone', {
+    abbr: 'z'
+  , help: 'time zone'
+  , default: 'UTC'
   })
   .option('date-format', {
     abbr: 'm'
@@ -324,7 +329,7 @@ var prFormatter = function(data) {
       } else if (pr.tag.name != currentTagName) {
         currentTagName = pr.tag.name;
         output+= "\n### " + pr.tag.name
-        output+= " " + pr.tag.date.utc().format(opts['date-format']);
+        output+= " " + pr.tag.date.tz(opts['time-zone']).format(opts['date-format']);
         output+= "\n";
       }
     }
@@ -409,7 +414,7 @@ var commitFormatter = function(data) {
       } else if (commit.tag.name != currentTagName) {
         currentTagName = commit.tag.name;
         output+= "\n### " + commit.tag.name
-        output+= " " + commit.tag.date.utc().format(opts['date-format']);
+        output+= " " + commit.tag.date.tz(opts['time-zone']).format(opts['date-format']);
         output+= "\n";
       }
     }
