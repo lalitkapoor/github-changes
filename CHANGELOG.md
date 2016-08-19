@@ -1,5 +1,9 @@
 ## Change Log
 
+### v1.0.4 (2016/08/19 08:25 +00:00)
+- [#55](https://github.com/lalitkapoor/github-changes/pull/55) Update README with correct links! (@PunkChameleon)
+- [#59](https://github.com/lalitkapoor/github-changes/pull/59) added --time-zone option (@YuG1224)
+
 ### v1.0.2 (2016/02/22 00:53 +00:00)
 - [#53](https://github.com/lalitkapoor/github-changes/pull/53) added --for-tag option to generate changelog for single tag (@ivpusic)
 
@@ -25,7 +29,7 @@
 - [#36](https://github.com/lalitkapoor/github-changes/pull/36) PR links point to https://null/... (@lalitkapoor)
 
 ### v0.0.11 (2014/05/12 19:01 +00:00)
-- [#32](https://github.com/lalitkapoor/github-changes/pull/32) support for github enterprise (@lalitkapoor, @calmdev)
+- [#32](https://github.com/lalitkapoor/github-changes/pull/32) support for github enterprise (@lalitkapoor)
 
 ### v0.0.10 (2014/03/01 06:02 +00:00)
 - [#26](https://github.com/lalitkapoor/github-changes/pull/26) handle missing author in pull requests (@lalitkapoor)
