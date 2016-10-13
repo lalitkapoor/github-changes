@@ -432,31 +432,24 @@ var commitFormatter = function(data) {
         if (c.parents.length > 1) return;
 
         if (c.author && c.author.login) {
-          authors[c.author.login] = true;
+          authors[c.author.login] = c.author.html_url;
         }
       });
     }
-    authors = Object.keys(authors);
 
     // if it's a pull request, then the link should be to the pull request
     if (isPull) {
       var prNumber = commit.commit.message.split('#')[1].split(' ')[0];
-      var author = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
+      var fallbackAuthor = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
       var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
       var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
+      output += formatAuthors(authors, fallbackAuthor);
 
-      if (authors.length)
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
-      else
-        output += " (@" + author + ")";
     } else { //otherwise link to the commit
+      var fallbackAuthor = (commit.author && commit.author.login) ? commit.author.login : false;
       output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
-
-      if (authors.length)
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
-      else if (commit.author && commit.author.login)
-        output += " (@" + commit.author.login + ")";
+      output += formatAuthors(authors, fallbackAuthor);
     }
 
     // output += " " + moment(commit.commit.committer.date).utc().format(opts['date-format']);
@@ -464,6 +457,23 @@ var commitFormatter = function(data) {
   });
   return output.trim();
 };
+
+var formatAuthors = function(authors, fallbackAuthor) {
+  var output = [];
+  var logins = Object.keys(authors);
+  if (logins.length) {
+    output = logins.map(function(login) {
+      if (authors[login]) {
+        return '[@' + login + '](' + authors[login] + ')';
+      } else {
+        return '@' + login;
+      }
+    });
+  } else if (fallbackAuthor) {
+    output[0] = '@' + fallbackAuthor;
+  }
+  return output.length > 0 ? ' (' + output.join(',') + ')' : '';
+}
 
 var formatter = function(data) {
   if (opts.data === 'commits') return commitFormatter(data);
