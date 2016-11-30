@@ -397,7 +397,7 @@ var commitFormatter = function(data) {
 
     // handle checking for a squash & merge
     if (!isPull) {
-      isPull = /^.*\s\(\#\d+\)(\n+.*)?$/i.test(commit.commit.message);
+      isPull = /\s\(\#\d+\)/i.test(commit.commit.message); //contains ' (#123)'?
       if (isPull) {
         isMerge = true;
         isSquashAndMerge = true;
