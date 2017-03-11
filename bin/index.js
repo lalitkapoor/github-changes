@@ -393,6 +393,17 @@ var commitFormatter = function(data) {
 
     var isMerge = (commit.parents.length > 1);
     var isPull = isMerge && /^Merge pull request #/i.test(commit.commit.message);
+    var isSquashAndMerge = false;
+
+    // handle checking for a squash & merge
+    if (!isPull) {
+      isPull = /\s\(\#\d+\)/i.test(commit.commit.message); //contains ' (#123)'?
+      if (isPull) {
+        isMerge = true;
+        isSquashAndMerge = true;
+      }
+    }
+
     // exits
     if ((opts.merges === false) && isMerge) return '';
     if ((opts['only-merges']) && commit.parents.length < 2) return '';
@@ -402,7 +413,7 @@ var commitFormatter = function(data) {
     var messages = commit.commit.message.split('\n');
     var message = messages.shift().trim();
 
-    if (opts['use-commit-body'] && commit.parents.length > 1) {
+    if (!isSquashAndMerge && opts['use-commit-body'] && commit.parents.length > 1) {
       message = messages.join(' ').trim() || message;
     }
 
@@ -440,16 +451,31 @@ var commitFormatter = function(data) {
 
     // if it's a pull request, then the link should be to the pull request
     if (isPull) {
-      var prNumber = commit.commit.message.split('#')[1].split(' ')[0];
-      var author = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
+      var prNumber = null;
+      var author = null;
+      var authorName = commit.commit.author && commit.commit.author.name;
+
+      if (isSquashAndMerge) {
+        prNumber = commit.commit.message.match(/\(#\d+\)/)[0].replace(/\(|\)|#/g,'');
+        author = (commit.author && commit.author.login);
+      } else {
+        prNumber = commit.commit.message.split('#')[1].split(' ')[0];
+        author = (commit.commit.message.split(/\#\d+\sfrom\s/)[1]||'').split('/')[0];
+      }
+
+
       var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
       var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
-      if (authors.length)
+      if (authors.length) {
         output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
-      else
+      } else if (author) {
         output += " (@" + author + ")";
+      } else if (authorName) {
+        output += " (" + authorName + ")";
+      }
+
     } else { //otherwise link to the commit
       output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
 

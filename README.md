@@ -135,3 +135,10 @@ npm install grunt-github-changes --save-dev
 ```
 
 For further details and specifics on how to use (and to contribute), see [grunt-github-changes](https://github.com/PunkChameleon/grunt-github-changes).
+
+### FAQ
+
+#### How are squashed pull request matched?
+
+When a pull request is merged with "Squash and merge", there isn't a merge commit. 
+By checking the commit message for ` (#123)` etc, we can match the correct pull request.
