@@ -1,6 +1,9 @@
 ## Change Log
 
-### v1.0.4 (2016/08/19 08:25 +00:00)
+### v1.1.0 (2017/03/16 21:18 +00:00)
+- [#64](https://github.com/lalitkapoor/github-changes/pull/64) Support for squash and merge (@304NotModified, @lalitkapoor)
+
+### v1.0.3 (2016/08/19 08:25 +00:00)
 - [#55](https://github.com/lalitkapoor/github-changes/pull/55) Update README with correct links! (@PunkChameleon)
 - [#59](https://github.com/lalitkapoor/github-changes/pull/59) added --time-zone option (@YuG1224)
 
