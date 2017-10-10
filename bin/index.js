@@ -364,7 +364,7 @@ var getCommitsInMerge = function(mergeCommit) {
     commitsBySha[sha].parents.forEach(function(parent){
       if (directDescendents[parent.sha]) return;
       if (store[parent.sha]) return; // don't revist commits we've explored
-      return getAllReachableCommits(parent.sha, store);
+      return setTimeout(function() {getAllReachableCommits(parent.sha, store)}, 0);
     })
   };
 
