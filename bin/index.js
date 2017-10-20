@@ -135,6 +135,10 @@ opts = parser
     help: 'hide tag names in changelog'
   , flag: true
   })
+  .option('timeout', {
+    help: 'Github API timeout'
+  , default: 10000
+  })
 
   // TODO
   // .option('template', {
@@ -157,7 +161,7 @@ var currentDate = moment();
 
 var github = new GithubApi({
   version: '3.0.0'
-, timeout: 10000
+, timeout: opts['timeout']
 , protocol: 'https'
 , pathPrefix: opts['path-prefix']
 , host: opts.host
