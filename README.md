@@ -43,7 +43,7 @@ Options:
    --hide-tag-names    hide tag names in changelog
 ```
 
-###Example usage
+### Example usage
 
 #### Generate changelog via pull requests
 ```bash
