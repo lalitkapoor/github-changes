@@ -1,5 +1,9 @@
 ## Change Log
 
+### v1.1.1 (2017/11/08 05:06 +00:00)
+- [#71](https://github.com/lalitkapoor/github-changes/pull/71) Fix Markdown format (#71) (@baopham)
+- [#69](https://github.com/lalitkapoor/github-changes/pull/69) Paramaterise Github API timeout (#69) (@samdunne)
+
 ### v1.1.0 (2017/03/16 21:18 +00:00)
 - [#64](https://github.com/lalitkapoor/github-changes/pull/64) Support for squash and merge (@304NotModified, @lalitkapoor)
 
