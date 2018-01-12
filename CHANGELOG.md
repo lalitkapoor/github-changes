@@ -1,5 +1,8 @@
 ## Change Log
 
+### v1.1.2 (2018/01/12 04:52 +00:00)
+- [#72](https://github.com/lalitkapoor/github-changes/pull/72) upgrade semver lib (#72) (@lalitkapoor)
+
 ### v1.1.1 (2017/11/08 05:06 +00:00)
 - [#71](https://github.com/lalitkapoor/github-changes/pull/71) Fix Markdown format (#71) (@baopham)
 - [#69](https://github.com/lalitkapoor/github-changes/pull/69) Paramaterise Github API timeout (#69) (@samdunne)
