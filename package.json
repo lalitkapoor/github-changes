@@ -15,7 +15,7 @@
     "moment-timezone": "0.5.5",
     "nomnom": "1.6.2",
     "parse-link-header": "0.1.0",
-    "semver": "2.2.1"
+    "semver": "5.4.1"
   },
   "devDependencies": {
     "json": "^9.0.2"
