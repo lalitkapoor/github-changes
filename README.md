@@ -1,6 +1,8 @@
 github-changes [![NPM version](https://badge.fury.io/js/github-changes.png)](http://badge.fury.io/js/github-changes)
 ==============
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/lalitkapoor/github-changes.svg)](https://greenkeeper.io/)
+
 Generate a changelog based on merged pull requests or commit messages
 
 [![NPM](https://nodei.co/npm/github-changes.png)](https://nodei.co/npm/github-changes/)
