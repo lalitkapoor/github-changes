@@ -330,7 +330,7 @@ var getCompareUrls = function(data) {
   var previousTagName = '';
   var currentTagName = '';
   var urls = [];
-  data.forEach(function(pr, idx){
+  data.forEach(function(pr){
     if (pr.tag === null) return;
     var tagName = (pr.tag.name === 'upcoming' ? 'HEAD' : pr.tag.name);
     if (tagName != currentTagName) {
@@ -346,11 +346,11 @@ var prFormatter = function(data) {
   var urls = getCompareUrls(data);
   var currentTagName = '';
   var output = "## " + opts.title + "\n";
-  var wrapUrl = function(name, idx){
+  var wrapUrl = function(name){
     if (urls.length === 0) return name;
     return "[" + name + "](" + urls.shift() + ")";
   };
-  data.forEach(function(pr, idx){
+  data.forEach(function(pr){
     if (!opts['hide-tag-names']) {
       if (pr.tag === null) {
         currentTagName = opts['tag-name'];
@@ -358,7 +358,7 @@ var prFormatter = function(data) {
         output+= "\n";
       } else if (pr.tag.name != currentTagName) {
         currentTagName = pr.tag.name;
-        output+= "\n### " + wrapUrl(pr.tag.name, idx);
+        output+= "\n### " + wrapUrl(pr.tag.name);
         output+= " " + pr.tag.date.tz(opts['time-zone']).format(opts['date-format']);
         output+= "\n";
       }
