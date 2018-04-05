@@ -301,6 +301,11 @@ var getAllCommits = function() {
   });
 };
 
+var getRepositoryUrl = function() {
+  var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
+  return "https://"+host+"/"+opts.owner+"/"+opts.repository;
+};
+
 var getData = function() {
   if (opts.data === 'commits') return getAllCommits();
   return getPullRequests();
@@ -468,8 +473,7 @@ var commitFormatter = function(data) {
       }
 
 
-      var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
-      var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
+      var url = getRepositoryUrl()+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
       if (authors.length) {
