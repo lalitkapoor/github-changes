@@ -327,17 +327,24 @@ var tagger = function(sortedTags, data) {
 };
 
 var prFormatter = function(data) {
+  var tags = [];
   var currentTagName = '';
   var output = "## " + opts.title + "\n";
-  data.forEach(function(pr){
+  data.forEach(function(pr){ tags.push(pr.tag === null ? 'HEAD' : pr.tag.name); });
+  var wrapUrl = function(name, idx){
+    if (idx >= tags.length - 1) return;
+    var url = getRepositoryUrl()+'/compare/' + tags[idx + 1] + '...' + tags[idx];
+    return "[" + name + "](" + url + ")";
+  };
+  data.forEach(function(pr, idx){
     if (!opts['hide-tag-names']) {
       if (pr.tag === null) {
         currentTagName = opts['tag-name'];
-        output+= "\n### " + opts['tag-name'];
+        output+= "\n### " + wrapUrl(opts['tag-name'], idx);
         output+= "\n";
       } else if (pr.tag.name != currentTagName) {
         currentTagName = pr.tag.name;
-        output+= "\n### " + pr.tag.name
+        output+= "\n### " + wrapUrl(pr.tag.name, idx);
         output+= " " + pr.tag.date.tz(opts['time-zone']).format(opts['date-format']);
         output+= "\n";
       }
