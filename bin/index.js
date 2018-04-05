@@ -326,21 +326,35 @@ var tagger = function(sortedTags, data) {
   return current;
 };
 
+var getCompareUrls = function(data) {
+  var previousTagName = '';
+  var currentTagName = '';
+  var urls = [];
+  data.forEach(function(pr, idx){
+    if (pr.tag === null) return;
+    var tagName = (pr.tag.name === 'upcoming' ? 'HEAD' : pr.tag.name);
+    if (tagName != currentTagName) {
+      previousTagName = currentTagName;
+      currentTagName = tagName;
+      if (previousTagName !== '') urls.push(getRepositoryUrl()+'/compare/'+currentTagName+'...'+previousTagName);
+    }
+  });
+  return urls;
+};
+
 var prFormatter = function(data) {
-  var tags = [];
+  var urls = getCompareUrls(data);
   var currentTagName = '';
   var output = "## " + opts.title + "\n";
-  data.forEach(function(pr){ tags.push(pr.tag === null ? 'HEAD' : pr.tag.name); });
   var wrapUrl = function(name, idx){
-    if (idx >= tags.length - 1) return;
-    var url = getRepositoryUrl()+'/compare/' + tags[idx + 1] + '...' + tags[idx];
-    return "[" + name + "](" + url + ")";
+    if (urls.length === 0) return name;
+    return "[" + name + "](" + urls.shift() + ")";
   };
   data.forEach(function(pr, idx){
     if (!opts['hide-tag-names']) {
       if (pr.tag === null) {
         currentTagName = opts['tag-name'];
-        output+= "\n### " + wrapUrl(opts['tag-name'], idx);
+        output+= "\n### " + opts['tag-name'];
         output+= "\n";
       } else if (pr.tag.name != currentTagName) {
         currentTagName = pr.tag.name;
