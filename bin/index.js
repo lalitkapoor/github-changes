@@ -339,7 +339,7 @@ var prFormatter = function(data) {
     }
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
-    if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
+    if (pr.user && pr.user.login) output += " ([@" + pr.user.login + "](https://github.com/" + pr.user.login + "))";
     if (opts['issue-body'] && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
 
     // output += " " + moment(pr.merged_at).utc().format(opts['date-format']);
@@ -473,9 +473,9 @@ var commitFormatter = function(data) {
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
       if (authors.length) {
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
+        output += ' (' + authors.map(function(author){return '[@' + author + '](https://github.com/' + author + ')'}).join(', ') + ')';
       } else if (author) {
-        output += " (@" + author + ")";
+        output += " ([@" + author + "](https://github.com/" + author + "))";
       } else if (authorName) {
         output += " (" + authorName + ")";
       }
@@ -484,9 +484,9 @@ var commitFormatter = function(data) {
       output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
 
       if (authors.length)
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
+        output += ' (' + authors.map(function(author){return '[@' + author + '](https://github.com/' + author + ')'}).join(', ') + ')';
       else if (commit.author && commit.author.login)
-        output += " (@" + commit.author.login + ")";
+        output += " ([@" + commit.author.login + "](https://github.com/" + commit.author.login + "))";
     }
 
     // output += " " + moment(commit.commit.committer.date).utc().format(opts['date-format']);
