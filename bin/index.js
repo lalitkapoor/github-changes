@@ -316,40 +316,34 @@ var tagger = function(sortedTags, data) {
   if (opts.data === 'commits') date = moment(data.commit.committer.date);
   else date = moment(data.merged_at);
 
-  var current = null;
+  var prevTag = null;
+  var currTag = null;
   for (var i=0, len=sortedTags.length; i < len; i++) {
     var tag = sortedTags[i];
+    prevTag = tag;
     if (tag.date < date) break;
-    current = tag;
+    currTag = tag;
   }
-  if (!current) current = {name: opts['tag-name'], date: currentDate};
-  return current;
+  if (!currTag) currTag = {name: opts['tag-name'], date: currentDate};
+  return { currTag: currTag, prevTag: prevTag };
 };
 
-var getCompareUrls = function(data) {
-  var previousTagName = '';
-  var currentTagName = '';
-  var urls = [];
-  data.forEach(function(pr){
+var getPrTag = function(pr) {
+  var url = (function(){
     if (pr.tag === null) return;
-    var tagName = (pr.tag.name === 'upcoming' ? 'HEAD' : pr.tag.name);
-    if (tagName != currentTagName) {
-      previousTagName = currentTagName;
-      currentTagName = tagName;
-      if (previousTagName !== '') urls.push(getRepositoryUrl()+'/compare/'+currentTagName+'...'+previousTagName);
-    }
-  });
-  return urls;
+    if (pr.prevTag == null) return;
+    var currentTagName = (pr.tag.name === 'upcoming' ? 'HEAD' : pr.tag.name);
+    var previousTagName = pr.prevTag.name;
+    return getRepositoryUrl()+'/compare/'+previousTagName+'...'+currentTagName;
+  })();
+
+  if (url) return "[" + pr.tag.name + "](" + url + ")";
+  return pr.tag.name;
 };
 
 var prFormatter = function(data) {
-  var urls = getCompareUrls(data);
   var currentTagName = '';
   var output = "## " + opts.title + "\n";
-  var wrapUrl = function(name){
-    if (urls.length === 0) return name;
-    return "[" + name + "](" + urls.shift() + ")";
-  };
   data.forEach(function(pr){
     if (!opts['hide-tag-names']) {
       if (pr.tag === null) {
@@ -358,7 +352,7 @@ var prFormatter = function(data) {
         output+= "\n";
       } else if (pr.tag.name != currentTagName) {
         currentTagName = pr.tag.name;
-        output+= "\n### " + wrapUrl(pr.tag.name);
+        output+= "\n### " + getPrTag(pr);
         output+= " " + pr.tag.date.tz(opts['time-zone']).format(opts['date-format']);
         output+= "\n";
       }
@@ -550,7 +544,9 @@ var task = function() {
       return data;
     })
     .map(function(data){
-      data.tag = tagger(allTags, data);
+      var tagInfo = tagger(allTags, data);
+      data.prevTag = tagInfo.prevTag;
+      data.tag = tagInfo.currTag;
       data.tagDate = data.tag.date;
       return data;
     })
