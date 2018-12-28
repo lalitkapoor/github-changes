@@ -345,7 +345,7 @@ var prFormatter = function(data) {
     // output += " " + moment(pr.merged_at).utc().format(opts['date-format']);
     output += "\n";
   });
-  return output.trim();
+  return output.trim() + "\n";
 };
 
 var getCommitsInMerge = function(mergeCommit) {
