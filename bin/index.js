@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
+// Overwrite global promise, so GithubApi will use bluebird too.
+Promise = require("bluebird");
+
 var fs = require('fs');
 var _ = require('lodash');
 var http = require('http');
 var https = require('https');
 var domain = require('domain');
 var moment = require('moment-timezone');
-var parser = require('nomnom');
+var parser = require('commander');
 var semver = require('semver');
-var Promise = require("bluebird");
-var GithubApi = require('github');
+var GithubApi = require('@octokit/rest');
 var linkParser = require('parse-link-header');
 var ghauth = Promise.promisify(require('ghauth'));
-var commitStream = require('github-commit-stream');
 
 // Increase number of concurrent requests
 http.globalAgent.maxSockets = 30;
@@ -25,146 +26,59 @@ https.globalAgent.maxSockets = 30;
 // tags: git log --tags --simplify-by-decoration --format="%ci%n%d"
 // prs: git log --grep="Merge pull request #" --format="%s%n%ci%n%b"
 
-
 // parse cli options
-opts = parser
-  .scriptName('github-changes')
-  .option('owner', {
-    abbr: 'o'
-  , help: '(required) owner of the Github repository'
-  , required: true
-  })
-  .option('repository', {
-    abbr: 'r'
-  , help: '(required) name of the Github repository'
-  , required: true
-  })
-  .option('data', {
-    abbr: 'd'
-  , help: '(DEPRECATED) use pull requests or commits (choices: pulls, commits)'
-  , choices: ['pulls', 'commits']
-  , default: 'commits'
-  })
-  .option('branch', {
-    abbr: 'b'
-  , help: 'name of the default branch'
-  , default: 'master'
-  })
-  .option('tag-name', {
-    abbr: 'n'
-  , help: 'tag name for upcoming release'
-  , default: 'upcoming'
-  })
-  .option('auth', {
-    abbr: 'a'
-  , help: 'prompt to auth with Github - use this for private repos and higher rate limits'
-  , flag: true
-  })
-  .option('token', {
-    abbr: 'k'
-  , help: 'need to use this or --auth for private repos and higher rate limits'
-  })
-  .option('file', {
-    abbr: 'f'
-  , help: 'name of the file to output the changelog to'
-  , default: 'CHANGELOG.md'
-  })
-  .option('title', {
-    abbr: 't'
-  , help: 'title to appear in the top of the changelog'
-  , default: 'Change Log'
-  })
-  .option('time-zone', {
-    abbr: 'z'
-  , help: 'time zone'
-  , default: 'UTC'
-  })
-  .option('date-format', {
-    abbr: 'm'
-  , help: 'date format'
-  , default: '(YYYY/MM/DD HH:mm Z)'
-  })
-  .option('verbose', {
-    abbr: 'v'
-  , help: 'output details'
-  , flag: true
-  })
-  .option('host', {
-    help: 'alternate host name to use with github enterprise'
-  , default: 'api.github.com'
-  })
-  .option('path-prefix', {
-    help: 'path-prefix for use with github enterprise'
-  , default: null
-  })
-  .option('between-tags', {
-    help: 'only diff between these two tags, separate by 3 dots ...'
-  })
-  .option('for-tag', {
-    help: 'only get changes for this tag'
-  })
-  .option('issue-body', {
-    help: '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')'
-  , flag: true
-  })
-  .option('no-merges', {
-    help: 'do not include merges'
-  , flag: true
-  })
-  .option('only-merges', {
-    help: 'only include merges'
-  , flag: true
-  })
-  .option('only-pulls', {
-    help: 'only include pull requests'
-  , flag: true
-  })
-  .option('use-commit-body', {
-    help: 'use the commit body of a merge instead of the message - "Merge branch..."'
-  , flag: true
-  })
-  .option('order-semver', {
-    help: 'use semantic versioning for the ordering instead of the tag date'
-  , flag: true
-  })
-  .option('reverse-changes', {
-    help: 'reverse the order of changes within a release (show oldest first)'
-  , flag: true
-  })
-  .option('hide-tag-names', {
-    help: 'hide tag names in changelog'
-  , flag: true
-  })
-  .option('timeout', {
-    help: 'Github API timeout'
-  , default: 10000
-  })
+var opts = parser
+  .version(require('../package.json').version)
+  .option('-o, --owner <name>', '(required) owner of the Github repository')
+  .option('-r, --repository <name>', '(required) name of the Github repository')
+  .option('-d, --data [type]', '(DEPRECATED) use pull requests or commits (choices: pulls, commits)', 'commits')
+  .option('-b, --branch [name]', 'name of the default branch', 'master')
+  .option('-n, --tag-name [name]', 'tag name for upcoming release', 'upcoming')
+  .option('-a, --auth', 'prompt to auth with Github - use this for private repos and higher rate limits')
+  .option('-k, --token [token]', 'need to use this or --auth for private repos and higher rate limits')
+  .option('-f, --file [name]', 'name of the file to output the changelog to', 'CHANGELOG.md')
+  .option('-t, --title [title]', 'title to appear in the top of the changelog', 'Change Log')
+  .option('-z, --time-zone [zone]', 'time zone', 'UTC')
+  .option('-m, --date-format [format]', 'date format', '(YYYY/MM/DD HH:mm Z)')
+  .option('-v, --verbose', 'output details')
+  .option('--host [domain]', 'alternate host name to use with github enterprise', 'api.github.com')
+  .option('--path-prefix [path]', 'path-prefix for use with github enterprise')
+  .option('--between-tags [range]', 'only diff between these two tags, separate by 3 dots ...')
+  .option('--issue-body', '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')')
+  .option('--for-tag [tag]', 'only get changes for this tag')
+  .option('--no-merges', 'do not include merges')
+  .option('--only-merges', 'only include merges')
+  .option('--only-pulls', 'only include pull requests')
+  .option('--use-commit-body', 'use the commit body of a merge instead of the message - "Merge branch..."')
+  .option('--order-semver', 'use semantic versioning for the ordering instead of the tag date')
+  .option('--reverse-changes', 'reverse the order of changes within a release (show oldest first)')
+  .option('--hide-tag-names', 'hide tag names in changelog')
+  .option('--timeout [milliseconds]', 'Github API timeout', 10000)
+  .parse(process.argv);
 
-  // TODO
-  // .option('template', {
-  //   abbr: 't'
-  // , help: '(optional) template to use to generate the changelog'
-  // })
-  .parse()
-;
-
-if (opts['only-pulls']) opts.merges = true;
+if (opts.onlyPulls) opts.merges = true;
 
 var betweenTags = [null, null];
 var betweenTagsNames = null;
-if (opts['between-tags']) betweenTagsNames = opts['between-tags'].split('...');
+if (opts.betweenTags) betweenTagsNames = opts.betweenTags.split('...');
 
-var forTag = opts['for-tag'];
+var forTag = opts.forTag;
 
 var commitsBySha = {}; // populated when calling getAllCommits
 var currentDate = moment();
 
 var github = new GithubApi({
   version: '3.0.0'
-, timeout: opts['timeout']
 , protocol: 'https'
-, pathPrefix: opts['path-prefix']
+, pathPrefix: opts.pathPrefix
 , host: opts.host
+, request: {
+    timeout: opts.timeout
+  }
+, auth: async function() {
+    if (!token) return;
+    return `token ${token}`;
+  }
 });
 
 // github auth token
@@ -176,128 +90,110 @@ var authOptions = {
 , scopes     : ['user', 'public_repo', 'repo']
 };
 
-Promise.promisifyAll(github.repos);
-Promise.promisifyAll(github.issues);
-Promise.promisifyAll(github.pullRequests);
+// Promise.promisifyAll(github.repos);
+// Promise.promisifyAll(github.issues);
+// Promise.promisifyAll(github.pullRequests);
 
 // TODO: Could probably fetch releases so we don't have to get the commit data
 // for the sha of each tag to figure out the date. Could save alot on api
 // calls.
 var getTags = function(){
   var tagOpts = {
-    user: opts.owner
+    owner: opts.owner
   , repo: opts.repository
   , per_page: 100
   };
-  auth();
-  return github.repos.getTagsAsync(tagOpts).map(function(ref){
-    auth();
-    return github.repos.getCommitAsync({
-      user: tagOpts.user
-    , repo: tagOpts.repo
-    , sha: ref.commit.sha
-    }).then(function(commit){
-      opts.verbose && console.log('pulled commit data for tag - ', ref.name);
-      var tag = {
-        name: ref.name
-      , date: moment(commit.commit.committer.date)
-      };
 
-      // if betweenTags is specified then
-      if (betweenTagsNames && (betweenTagsNames.indexOf(tag.name)>-1)) {
-        betweenTags[betweenTagsNames.indexOf(tag.name)] = tag;
+  return github.repos.listTags(tagOpts)
+    .then(result => result.data)
+    .map(function(ref){
+      return github.repos.getCommit({
+          owner: tagOpts.owner
+        , repo: tagOpts.repo
+        , sha: ref.commit.sha
+      }).then(function({data: commit}){
+        opts.verbose && console.log('pulled commit data for tag - ', ref.name);
+        var tag = {
+            name: ref.name
+          , date: moment(commit.commit.committer.date)
+        };
+
+        // if betweenTags is specified then
+        if (betweenTagsNames && (betweenTagsNames.indexOf(tag.name)>-1)) {
+          betweenTags[betweenTagsNames.indexOf(tag.name)] = tag;
+        }
+
+        return tag;
+      });
+    });
+};
+
+var _getAllPullRequests = function(page = 1) {
+  return github.pulls.list({
+      owner: opts.owner
+    , repo: opts.repository
+    , base: opts.branch
+    , state: 'closed'
+    , sort: 'updated'
+    , direction: 'desc'
+    , per_page: 100
+    , page: page
+    // , since: null // TODO: this is an improvement to save API calls
+  })
+    .then(result => {
+      opts.verbose && console.log('fetched %d pull requests', ((page - 1) * 100) + result.data.length)
+
+      var pulls = result.data.filter(pr => pr.merged_at !== null);
+
+      if (result.headers.link && result.headers.link.indexOf('rel="next"') > 0) {
+        return _getAllPullRequests(page + 1).then(list => pulls.concat(list));
       }
 
-      return tag;
-    });
-  }).then(function(tags){
-    return tags;
+      return pulls;
+    })
+  ;
+};
+
+var getPullRequests = function() {
+  opts.verbose && console.log('fetching pull requests');
+
+  return _getAllPullRequests().then(pulls => {
+    opts.verbose && console.log('fetched all pull requests');
+    return pulls;
   });
 };
 
-var getPullRequests = function(){
-  var issueOpts = {
-    user: opts.owner
-  , repo: opts.repository
-  , state: 'closed'
-  , sort: 'updated'
-  , direction: 'desc'
-  , per_page: 100
-  , page: 1
-  // , since: null // TODO: this is an improvement to save API calls
-  };
-
-  var getIssues = function(options){
-    auth();
-    return github.issues.repoIssuesAsync(options).then(function(issues){
-      opts.verbose && console.log('issues pulled - ', issues.length);
-      opts.verbose && console.log('issues page - ', options.page);
-      return issues;
-    });
-  };
-
-  return getIssues(issueOpts).then(function(issues){
-    var linkHeader = linkParser(issues.meta.link)
-    var totalPages = (linkHeader && linkHeader.last) ? linkHeader.last.page : 1;
-
-    if (totalPages > issueOpts.page) {
-      var allReqs = [];
-      for(var i=issueOpts.page; i<totalPages; i++){
-        var newOptions = _.clone(issueOpts, true);
-        newOptions.page += i;
-        allReqs.push(getIssues(newOptions));
-      }
-      return Promise.all(allReqs).reduce(function(issues, moreIssues){
-        return issues.concat(moreIssues);
-      }, issues);
-    }
-    return issues;
-  }).map(function(issue){
-    if (!issue.pull_request.html_url) return;
-
-    auth();
-    return github.pullRequests.getAsync({
-      user: issueOpts.user
-    , repo: issueOpts.repo
-    , number: issue.number
-    }).then(function(pr){
-      if (pr.base.ref !== opts.branch) return;
-      if (!pr.merged_at) return;
-      return pr;
-    });
-  }).reduce(function(scrubbed, pr){
-    if (pr) scrubbed.push(pr);
-    return scrubbed;
-  }, [])
-  .then(function(prs){
-    return prs;
-  });
-};
-
-var getAllCommits = function() {
-  var progress = 0;
-  opts.verbose && console.log('fetching commits');
-  return new Promise(function(resolve, reject){
-    var commits = [];
-    commitStream({
-      token: token
-    , host: opts.host
-    , pathPrefix: (opts['path-prefix'] == '') ? '' : opts['path-prefix']
-    , user: opts.owner
+var _getAllCommits = function(page = 1) {
+  return github.repos.listCommits({
+      owner: opts.owner
     , repo: opts.repository
     , sha: opts.branch
     , per_page: 100
-    }).on('data', function(data){
-      if (++progress % 100 == 0) {
-        opts.verbose && console.log('fetched %d commits', progress)
+    , page: page
+    })
+    .then(result => {
+      opts.verbose && console.log('fetched %d commits', ((page - 1) * 100) + result.data.length)
+
+      var commits = result.data.slice();
+
+      result.data.forEach(commit => {
+        commitsBySha[commit.sha] = commit;
+      });
+
+      if (result.headers.link && result.headers.link.indexOf('rel="next"') > 0) {
+        return _getAllCommits(page + 1).then(list => commits.concat(list));
       }
-      commitsBySha[data.sha] = data;
-      commits = commits.concat(data);
-    }).on('end', function(error){
-      if (error) return reject(error);
-      opts.verbose && console.log('fetched all commits');
-      return resolve(commits);
+
+      return commits;
     });
+};
+
+var getAllCommits = function() {
+  opts.verbose && console.log('fetching commits');
+
+  return _getAllCommits().then(commits => {
+    opts.verbose && console.log('fetched all commits');
+    return commits;
   });
 };
 
@@ -317,7 +213,7 @@ var tagger = function(sortedTags, data) {
     if (tag.date < date) break;
     current = tag;
   }
-  if (!current) current = {name: opts['tag-name'], date: currentDate};
+  if (!current) current = {name: opts.tagName, date: currentDate};
   return current;
 };
 
@@ -325,24 +221,24 @@ var prFormatter = function(data) {
   var currentTagName = '';
   var output = "## " + opts.title + "\n";
   data.forEach(function(pr){
-    if (!opts['hide-tag-names']) {
+    if (!opts.hideTagNames) {
       if (pr.tag === null) {
-        currentTagName = opts['tag-name'];
-        output+= "\n### " + opts['tag-name'];
+        currentTagName = opts.TagName;
+        output+= "\n### " + opts.tagName;
         output+= "\n";
       } else if (pr.tag.name != currentTagName) {
         currentTagName = pr.tag.name;
         output+= "\n### " + pr.tag.name
-        output+= " " + pr.tag.date.tz(opts['time-zone']).format(opts['date-format']);
+        output+= " " + pr.tag.date.tz(opts.timeZone).format(opts.dateFormat);
         output+= "\n";
       }
     }
 
     output += "- [#" + pr.number + "](" + pr.html_url + ") " + pr.title
     if (pr.user && pr.user.login) output += " (@" + pr.user.login + ")";
-    if (opts['issue-body'] && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
+    if (opts.issueBody && pr.body && pr.body.trim()) output += "\n\n    >" + pr.body.trim().replace(/\n/ig, "\n    > ") +"\n";
 
-    // output += " " + moment(pr.merged_at).utc().format(opts['date-format']);
+    // output += " " + moment(pr.merged_at).utc().format(opts.dateFormat);
     output += "\n";
   });
   return output.trim() + "\n";
@@ -372,7 +268,7 @@ var getCommitsInMerge = function(mergeCommit) {
     })
   };
 
-  var parentShas = _.pluck(mergeCommit.parents, 'sha');
+  var parentShas = _.map(mergeCommit.parents, 'sha');
   var notSha = parentShas.shift(); // value to pass to --not flag in git log
   parentShas.forEach(function(sha){
     return getAllReachableCommits(sha, store1);
@@ -410,26 +306,26 @@ var commitFormatter = function(data) {
 
     // exits
     if ((opts.merges === false) && isMerge) return '';
-    if ((opts['only-merges']) && commit.parents.length < 2) return '';
-    if ((opts['only-pulls']) && !isPull) return '';
+    if ((opts.onlyMerges) && commit.parents.length < 2) return '';
+    if ((opts.onlyPulls) && !isPull) return '';
 
     // choose message content
     var messages = commit.commit.message.split('\n');
     var message = messages.shift().trim();
 
-    if (!isSquashAndMerge && opts['use-commit-body'] && commit.parents.length > 1) {
+    if (!isSquashAndMerge && opts.useCommitBody && commit.parents.length > 1) {
       message = messages.join(' ').trim() || message;
     }
 
-    if (!opts['hide-tag-names']) {
+    if (!opts.hideTagNames) {
       if (commit.tag === null) {
-        currentTagName = opts['tag-name'];
-        output+= "\n### " + opts['tag-name'];
+        currentTagName = opts.tagName;
+        output+= "\n### " + opts.tagName;
         output+= "\n";
       } else if (commit.tag.name != currentTagName) {
         currentTagName = commit.tag.name;
         output+= "\n### " + commit.tag.name
-        output+= " " + commit.tag.date.tz(opts['time-zone']).format(opts['date-format']);
+        output+= " " + commit.tag.date.tz(opts.timeZone).format(opts.dateFormat);
         output+= "\n";
       }
     }
@@ -438,7 +334,7 @@ var commitFormatter = function(data) {
     // and extract authors out of those. Do this for --only-merges and for
     // --only-pulls
     var authors = {};
-    if (isMerge && (opts['only-merges'] || opts['only-pulls'])) {
+    if (isMerge && (opts.onlyMerges || opts.onlyPulls)) {
       getCommitsInMerge(commit).forEach(function(c){
         // ignore the author of a merge commit, they might have reviewed,
         // resolved conflicts, and merged, but I don't think this alone
@@ -489,7 +385,7 @@ var commitFormatter = function(data) {
         output += " (@" + commit.author.login + ")";
     }
 
-    // output += " " + moment(commit.commit.committer.date).utc().format(opts['date-format']);
+    // output += " " + moment(commit.commit.committer.date).utc().format(opts.dateFormat);
     output += "\n";
   });
   return output.trim();
@@ -504,11 +400,6 @@ var getGithubToken = function() {
   if (opts.token) return Promise.resolve({token: opts.token});
   if (opts.auth) return ghauth(authOptions);
   return Promise.resolve({});
-};
-
-var auth = function() {
-  if (!token) return;
-  github.authenticate({type: 'oauth', token: token});
 };
 
 var task = function() {
@@ -531,16 +422,16 @@ var task = function() {
     })
     .then(function(data){
       // order by commit date DESC by default / ASC if --reverse-changes given
-      var compareSign = (opts['reverse-changes']) ? -1 : 1;
+      var compareSign = (opts.reverseChanges) ? -1 : 1;
 
       // order by tag date then commit date
-      if (!opts['order-semver'] && opts.data === 'commits') {
+      if (!opts.orderSemver && opts.data === 'commits') {
         data = data.sort(function(a,b){
           var tagCompare = (a.tagDate - b.tagDate);
           return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
         }).reverse();
         return data;
-      } else if (!opts['order-semver'] && opts.data === 'pulls') {
+      } else if (!opts.orderSemver && opts.data === 'pulls') {
         data = data.sort(function(a,b){
           var tagCompare = (a.tagDate - b.tagDate);
           return (tagCompare) ? tagCompare : compareSign * (moment(a.merged_at) - moment(b.merged_at));
@@ -552,8 +443,8 @@ var task = function() {
       data = data.sort(function(a,b){
         var tagCompare = 0;
         if (a.tag.name === b.tag.name) tagCompare = 0;
-        else if (a.tag.name === opts['tag-name']) tagCompare = 1;
-        else if (b.tag.name === opts['tag-name']) tagCompare -1;
+        else if (a.tag.name === opts.tagName) tagCompare = 1;
+        else if (b.tag.name === opts.tagName) tagCompare -1;
         else tagCompare = semver.compare(a.tag.name, b.tag.name);
         return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
       }).reverse();
