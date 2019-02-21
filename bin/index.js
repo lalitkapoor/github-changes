@@ -12,7 +12,6 @@ var moment = require('moment-timezone');
 var parser = require('commander');
 var semver = require('semver');
 var GithubApi = require('@octokit/rest');
-var linkParser = require('parse-link-header');
 var ghauth = Promise.promisify(require('ghauth'));
 
 // Increase number of concurrent requests
