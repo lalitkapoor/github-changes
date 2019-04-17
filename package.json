@@ -7,13 +7,13 @@
     "github-changes": "./bin/index.js"
   },
   "dependencies": {
-    "@octokit/rest": "^16.16.0",
-    "bluebird": "^3.5.3",
-    "commander": "^2.19.0",
+    "@octokit/rest": "^16.24.3",
+    "bluebird": "^3.5.4",
+    "commander": "^2.20.0",
     "ghauth": "^3.2.1",
     "lodash": "^4.17.11",
     "moment-timezone": "^0.5.23",
-    "semver": "^5.6.0"
+    "semver": "^6.0.0"
   },
   "devDependencies": {
     "json": "^9.0.6"
