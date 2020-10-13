@@ -13,6 +13,10 @@ var GithubApi = require('github');
 var linkParser = require('parse-link-header');
 var ghauth = Promise.promisify(require('ghauth'));
 var commitStream = require('github-commit-stream');
+var globalTunnel = require('global-tunnel-ng');
+
+globalTunnel.initialize();
+
 
 // Increase number of concurrent requests
 http.globalAgent.maxSockets = 30;
