@@ -1,10 +1,10 @@
 {
   "name": "github-changes",
-  "version": "1.1.2",
+  "version": "2.0.0",
   "description": "generate changelog for github repos",
   "main": "./bin/index.js",
   "bin": {
-    "github-changes": "./bin/index.js"
+    "github-changes": "bin/index.js"
   },
   "dependencies": {
     "@octokit/rest": "^16.24.3",
