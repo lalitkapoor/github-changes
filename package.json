@@ -9,8 +9,8 @@
   "dependencies": {
     "@octokit/rest": "^16.24.3",
     "bluebird": "^3.5.4",
-    "commander": "^2.20.0",
-    "ghauth": "^3.2.1",
+    "commander": "^6.2.1",
+    "ghauth": "^5.0.0",
     "lodash": "^4.17.11",
     "moment-timezone": "^0.5.23",
     "semver": "^6.0.0"
