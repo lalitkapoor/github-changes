@@ -28,8 +28,8 @@ https.globalAgent.maxSockets = 30;
 // parse cli options
 var opts = parser
   .version(require('../package.json').version)
-  .option('-o, --owner <name>', '(required) owner of the Github repository')
-  .option('-r, --repository <name>', '(required) name of the Github repository')
+  .requiredOption('-o, --owner <name>', '(required) owner of the Github repository')
+  .requiredOption('-r, --repository <name>', '(required) name of the Github repository')
   .option('-d, --data [type]', '(DEPRECATED) use pull requests or commits (choices: pulls, commits)', 'commits')
   .option('-b, --branch [name]', 'name of the default branch', 'master')
   .option('-n, --tag-name [name]', 'tag name for upcoming release', 'upcoming')
