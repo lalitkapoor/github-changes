@@ -105,7 +105,7 @@ var getTags = function(){
       return github.repos.getCommit({
           owner: tagOpts.owner
         , repo: tagOpts.repo
-        , sha: ref.commit.sha
+        , commit_sha: ref.commit.sha
       }).then(function({data: commit}){
         opts.verbose && console.log('pulled commit data for tag - ', ref.name);
         var tag = {
