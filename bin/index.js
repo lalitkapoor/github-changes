@@ -89,10 +89,6 @@ var authOptions = {
 , scopes     : ['user', 'public_repo', 'repo']
 };
 
-// Promise.promisifyAll(github.repos);
-// Promise.promisifyAll(github.issues);
-// Promise.promisifyAll(github.pullRequests);
-
 // TODO: Could probably fetch releases so we don't have to get the commit data
 // for the sha of each tag to figure out the date. Could save alot on api
 // calls.
