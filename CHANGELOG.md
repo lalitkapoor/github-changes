@@ -1,5 +1,8 @@
 ## Change Log
 
+### v2.0.1 (2020/12/30 19:27 +00:00)
+- [#92](https://github.com/lalitkapoor/github-changes/pull/92) upgrade octokit-rest (#92) (@lalitkapoor)
+
 ### v2.0.0 (2020/12/29 23:31 +00:00)
 - [#72](https://github.com/lalitkapoor/github-changes/pull/72) upgrade semver lib (#72) (@lalitkapoor)
 - [#82](https://github.com/lalitkapoor/github-changes/pull/82) Add trailing newline to CHANGELOG (#82) (@khiav223577)
