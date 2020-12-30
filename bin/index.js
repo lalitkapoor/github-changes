@@ -3,16 +3,16 @@
 // Overwrite global promise, so GithubApi will use bluebird too.
 Promise = require("bluebird");
 
-var fs = require('fs');
-var _ = require('lodash');
-var http = require('http');
-var https = require('https');
-var domain = require('domain');
-var moment = require('moment-timezone');
-var parser = require('commander');
-var semver = require('semver');
+const fs = require('fs');
+const _ = require('lodash');
+const http = require('http');
+const https = require('https');
+const domain = require('domain');
+const moment = require('moment-timezone');
+const parser = require('commander');
+const semver = require('semver');
 const { Octokit } = require("@octokit/rest")
-var ghauth = Promise.promisify(require('ghauth'));
+const ghauth = Promise.promisify(require('ghauth'));
 
 // Increase number of concurrent requests
 http.globalAgent.maxSockets = 30;
