@@ -7,7 +7,7 @@
     "github-changes": "bin/index.js"
   },
   "dependencies": {
-    "@octokit/rest": "^16.24.3",
+    "@octokit/rest": "^18.0.12",
     "bluebird": "^3.5.4",
     "commander": "^6.2.1",
     "ghauth": "^5.0.0",
