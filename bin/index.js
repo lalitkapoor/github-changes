@@ -3,16 +3,16 @@
 // Overwrite global promise, so GithubApi will use bluebird too.
 Promise = require("bluebird");
 
-var fs = require('fs');
-var _ = require('lodash');
-var http = require('http');
-var https = require('https');
-var domain = require('domain');
-var moment = require('moment-timezone');
-var parser = require('commander');
-var semver = require('semver');
-var GithubApi = require('@octokit/rest');
-var ghauth = Promise.promisify(require('ghauth'));
+const fs = require('fs');
+const _ = require('lodash');
+const http = require('http');
+const https = require('https');
+const domain = require('domain');
+const moment = require('moment-timezone');
+const parser = require('commander');
+const semver = require('semver');
+const { Octokit } = require("@octokit/rest")
+const ghauth = Promise.promisify(require('ghauth'));
 
 // Increase number of concurrent requests
 http.globalAgent.maxSockets = 30;
@@ -66,19 +66,7 @@ var forTag = opts.forTag;
 var commitsBySha = {}; // populated when calling getAllCommits
 var currentDate = moment();
 
-var github = new GithubApi({
-  version: '3.0.0'
-, protocol: 'https'
-, pathPrefix: opts.pathPrefix
-, host: opts.host
-, request: {
-    timeout: opts.timeout
-  }
-, auth: async function() {
-    if (!token) return;
-    return `token ${token}`;
-  }
-});
+var github = null;
 
 // github auth token
 var token = null;
@@ -106,7 +94,7 @@ var getTags = function(){
       return github.repos.getCommit({
           owner: tagOpts.owner
         , repo: tagOpts.repo
-        , commit_sha: ref.commit.sha
+        , ref: ref.commit.sha
       }).then(function({data: commit}){
         opts.verbose && console.log('pulled commit data for tag - ', ref.name);
         var tag = {
@@ -179,7 +167,6 @@ var _getAllCommits = function(page = 1) {
       if (result.headers.link && result.headers.link.indexOf('rel="next"') > 0) {
         return _getAllCommits(page + 1).then(list => commits.concat(list));
       }
-
       return commits;
     });
 };
@@ -403,6 +390,17 @@ var task = function() {
     .then(function(authData){
       if (!authData.token) return;
       token = authData.token;
+
+      github = new Octokit({
+        version: '3.0.0'
+      , protocol: 'https'
+      , pathPrefix: opts.pathPrefix
+      , host: opts.host
+      , request: {
+          timeout: opts.timeout
+        }
+      , auth: token
+      });
     })
     .then(function(){
       return Promise.all([getTags(), getData()])
