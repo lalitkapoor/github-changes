@@ -1,24 +1,22 @@
 {
   "name": "github-changes",
-  "version": "1.1.2",
+  "version": "2.0.1",
   "description": "generate changelog for github repos",
   "main": "./bin/index.js",
   "bin": {
-    "github-changes": "./bin/index.js"
+    "github-changes": "bin/index.js"
   },
   "dependencies": {
-    "bluebird": "1.0.3",
-    "ghauth": "3.0.0",
-    "github": "0.1.16",
-    "github-commit-stream": "0.1.0",
-    "lodash": "2.4.1",
-    "moment-timezone": "0.5.5",
-    "nomnom": "1.6.2",
-    "parse-link-header": "0.1.0",
-    "semver": "5.4.1"
+    "@octokit/rest": "^18.0.12",
+    "bluebird": "^3.5.4",
+    "commander": "^6.2.1",
+    "ghauth": "^5.0.0",
+    "lodash": "^4.17.11",
+    "moment-timezone": "^0.5.23",
+    "semver": "^6.0.0"
   },
   "devDependencies": {
-    "json": "^9.0.2"
+    "json": "^9.0.6"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
