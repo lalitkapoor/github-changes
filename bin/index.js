@@ -68,6 +68,11 @@ if (opts.betweenTags) {
     console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must have a minimal length of 5 (two tags separated by ... for example --between-tags 1.0.0...1.1.0)`);
     return;
   }
+  const firstThreeDotsIndex = opts.betweenTags.indexOf('...');
+  if (firstThreeDotsIndex === -1) {
+    console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must contain ... (for example --between-tags 1.0.0...1.1.0)`);
+    return;
+  }
   betweenTagsNames = opts.betweenTags.split('...');
 }
 
