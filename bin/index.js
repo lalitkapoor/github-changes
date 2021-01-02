@@ -110,6 +110,19 @@ var getTags = function(){
 
   return github.repos.listTags(tagOpts)
     .then(result => result.data)
+    .then(tagArray => {
+      if (!betweenTagsNames) {
+        return tagArray;
+      }
+      const tagNames = tagArray.map(e => e.name);
+      if (!tagNames.includes(betweenTagsNames[0])) {
+        throw new Error(`Tag ${betweenTagsNames[0]} was given as a first value of --between-tags but it doesn't exist in repository`);
+      }
+      if (!tagNames.includes(betweenTagsNames[1])) {
+        throw new Error(`Tag ${betweenTagsNames[1]} was given as a second value of --between-tags but it doesn't exist in repository`);
+      }
+      return tagArray;
+    })
     .map(function(ref){
       return github.repos.getCommit({
           owner: tagOpts.owner
