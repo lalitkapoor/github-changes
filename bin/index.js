@@ -59,7 +59,13 @@ if (opts.onlyPulls) opts.merges = true;
 
 var betweenTags = [null, null];
 var betweenTagsNames = null;
-if (opts.betweenTags) betweenTagsNames = opts.betweenTags.split('...');
+if (opts.betweenTags) {
+  if (opts.betweenTags.length === undefined) {
+    console.error('Invalid empty value of --between-tags option. --between-tags must have a value of two tags separated by ... (for example --between-tags 1.0.0...1.1.0)');
+    return;
+  }
+  betweenTagsNames = opts.betweenTags.split('...');
+}
 
 var forTag = opts.forTag;
 
