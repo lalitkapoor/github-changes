@@ -64,6 +64,10 @@ if (opts.betweenTags) {
     console.error('Invalid empty value of --between-tags option. --between-tags must have a value of two tags separated by ... (for example --between-tags 1.0.0...1.1.0)');
     return;
   }
+  if (opts.betweenTags.length <= 4) {
+    console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must have a minimal length of 5 (two tags separated by ... for example --between-tags 1.0.0...1.1.0)`);
+    return;
+  }
   betweenTagsNames = opts.betweenTags.split('...');
 }
 
