@@ -73,6 +73,11 @@ if (opts.betweenTags) {
     console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must contain ... (for example --between-tags 1.0.0...1.1.0)`);
     return;
   }
+  const lastThreeDotsIndex = opts.betweenTags.lastIndexOf('...');
+  if (lastThreeDotsIndex >= firstThreeDotsIndex + 3) {
+    console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must contain ... only once (for example --between-tags 1.0.0...1.1.0)`);
+    return;
+  }
   betweenTagsNames = opts.betweenTags.split('...');
 }
 
