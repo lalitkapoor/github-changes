@@ -59,26 +59,16 @@ if (opts.onlyPulls) opts.merges = true;
 
 var betweenTags = [null, null];
 var betweenTagsNames = null;
+
 if (opts.betweenTags) {
-  if (opts.betweenTags.length === undefined) {
-    console.error('Invalid empty value of --between-tags option. --between-tags must have a value of two tags separated by ... (for example --between-tags 1.0.0...1.1.0)');
-    return;
+  if (!opts.betweenTags.length) {
+    return console.error(`Invalid value for --between-tags. Please specify two tags separated by 3 dots ...`);
   }
-  if (opts.betweenTags.length <= 4) {
-    console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must have a minimal length of 5 (two tags separated by ... for example --between-tags 1.0.0...1.1.0)`);
-    return;
-  }
-  const firstThreeDotsIndex = opts.betweenTags.indexOf('...');
-  if (firstThreeDotsIndex === -1) {
-    console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must contain ... (for example --between-tags 1.0.0...1.1.0)`);
-    return;
-  }
-  const lastThreeDotsIndex = opts.betweenTags.lastIndexOf('...');
-  if (lastThreeDotsIndex >= firstThreeDotsIndex + 3) {
-    console.error(`Invalid value of --between-tags option: ${opts.betweenTags}. --between-tags value must contain ... only once (for example --between-tags 1.0.0...1.1.0)`);
-    return;
-  }
+
   betweenTagsNames = opts.betweenTags.split('...');
+  if (!betweenTagsNames[0] || !betweenTagsNames[1]) {
+    return console.error(`Invalid value for --between-tags. Please specify two tags separated by 3 dots ...`);
+  }
 }
 
 var forTag = opts.forTag;
@@ -111,16 +101,19 @@ var getTags = function(){
   return github.repos.listTags(tagOpts)
     .then(result => result.data)
     .then(tagArray => {
-      if (!betweenTagsNames) {
-        return tagArray;
+      // check that the tags asked for exist (--between-tags)
+      if (betweenTagsNames) {
+        const tagNames = tagArray.map(e => e.name);
+        if (!tagNames.includes(betweenTagsNames[0])) {
+          console.error(`Tag ${betweenTagsNames[0]} was given as a first value of --between-tags but it doesn't exist in repository`);
+          process.exit(1);
+        }
+        if (!tagNames.includes(betweenTagsNames[1])) {
+          console.error(`Tag ${betweenTagsNames[1]} was given as a second value of --between-tags but it doesn't exist in repository`);
+          process.exit(1);
+        }
       }
-      const tagNames = tagArray.map(e => e.name);
-      if (!tagNames.includes(betweenTagsNames[0])) {
-        throw new Error(`Tag ${betweenTagsNames[0]} was given as a first value of --between-tags but it doesn't exist in repository`);
-      }
-      if (!tagNames.includes(betweenTagsNames[1])) {
-        throw new Error(`Tag ${betweenTagsNames[1]} was given as a second value of --between-tags but it doesn't exist in repository`);
-      }
+
       return tagArray;
     })
     .map(function(ref){
@@ -135,7 +128,7 @@ var getTags = function(){
           , date: moment(commit.commit.committer.date)
         };
 
-        // if betweenTags is specified then
+        // if --between-tags is specified then reference the appropriate tag
         if (betweenTagsNames && (betweenTagsNames.indexOf(tag.name)>-1)) {
           betweenTags[betweenTagsNames.indexOf(tag.name)] = tag;
         }
