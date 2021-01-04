@@ -59,7 +59,17 @@ if (opts.onlyPulls) opts.merges = true;
 
 var betweenTags = [null, null];
 var betweenTagsNames = null;
-if (opts.betweenTags) betweenTagsNames = opts.betweenTags.split('...');
+
+if (opts.betweenTags) {
+  if (!opts.betweenTags.length) {
+    return console.error(`Invalid value for --between-tags. Please specify two tags separated by 3 dots ...`);
+  }
+
+  betweenTagsNames = opts.betweenTags.split('...');
+  if (!betweenTagsNames[0] || !betweenTagsNames[1]) {
+    return console.error(`Invalid value for --between-tags. Please specify two tags separated by 3 dots ...`);
+  }
+}
 
 var forTag = opts.forTag;
 
@@ -90,6 +100,22 @@ var getTags = function(){
 
   return github.repos.listTags(tagOpts)
     .then(result => result.data)
+    .then(tagArray => {
+      // check that the tags asked for exist (--between-tags)
+      if (betweenTagsNames) {
+        const tagNames = tagArray.map(e => e.name);
+        if (!tagNames.includes(betweenTagsNames[0])) {
+          console.error(`Tag ${betweenTagsNames[0]} was given as a first value of --between-tags but it doesn't exist in repository`);
+          process.exit(1);
+        }
+        if (!tagNames.includes(betweenTagsNames[1])) {
+          console.error(`Tag ${betweenTagsNames[1]} was given as a second value of --between-tags but it doesn't exist in repository`);
+          process.exit(1);
+        }
+      }
+
+      return tagArray;
+    })
     .map(function(ref){
       return github.repos.getCommit({
           owner: tagOpts.owner
@@ -102,7 +128,7 @@ var getTags = function(){
           , date: moment(commit.commit.committer.date)
         };
 
-        // if betweenTags is specified then
+        // if --between-tags is specified then reference the appropriate tag
         if (betweenTagsNames && (betweenTagsNames.indexOf(tag.name)>-1)) {
           betweenTags[betweenTagsNames.indexOf(tag.name)] = tag;
         }
