@@ -414,8 +414,7 @@ var getGithubToken = function() {
 var task = function() {
   getGithubToken()
     .then(function(authData){
-      if (!authData.token) return;
-      token = authData.token;
+      if (authData.token) token = authData.token;
 
       github = new Octokit({
         version: '3.0.0'
