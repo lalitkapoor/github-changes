@@ -1,5 +1,8 @@
 ## Change Log
 
+### v2.0.2 (2021/01/06 06:33 +00:00)
+- [#93](https://github.com/lalitkapoor/github-changes/pull/93) validate tags given in --between-tags option (#93) (@TheJavaGuy)
+
 ### v2.0.1 (2020/12/30 19:27 +00:00)
 - [#92](https://github.com/lalitkapoor/github-changes/pull/92) upgrade octokit-rest (#92) (@lalitkapoor)
 
