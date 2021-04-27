@@ -45,6 +45,8 @@ var opts = parser
   .option('--between-tags [range]', 'only diff between these two tags, separate by 3 dots ...')
   .option('--issue-body', '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')')
   .option('--for-tag [tag]', 'only get changes for this tag')
+  .option('--exclude-tag [regex]', 'exclude changes matching these tags')
+  .option('--include-tag [regex]', 'include changes matching only these tags')
   .option('--no-merges', 'do not include merges')
   .option('--only-merges', 'only include merges')
   .option('--only-pulls', 'only include pull requests')
@@ -112,6 +114,14 @@ var getTags = function(){
           console.error(`Tag ${betweenTagsNames[1]} was given as a second value of --between-tags but it doesn't exist in repository`);
           process.exit(1);
         }
+      }
+
+      if (opts.excludeTag) {
+        const regex = new RegExp(opts.excludeTag, 'g');
+        tagArray = tagArray.filter(tag => !tag.name.match(regex));
+      } else if (opts.includeTag) {
+        const regex = new RegExp(opts.includeTag, 'g');
+        tagArray = tagArray.filter(tag => tag.name.match(regex));
       }
 
       return tagArray;
