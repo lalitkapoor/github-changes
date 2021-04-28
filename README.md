@@ -17,31 +17,37 @@ npm install -g github-changes
 Usage: github-changes [options]
 
 Options:
-   -o, --owner         (required) owner of the Github repository
-   -r, --repository    (required) name of the Github repository
-   -d, --data          (DEPRECATED) use pull requests or commits (choices: pulls, commits)  [commits]
-   -b, --branch        name of the default branch  [master]
-   -n, --tag-name      tag name for upcoming release  [upcoming]
-   -a, --auth          prompt to auth with Github - use this for private repos and higher rate limits
-   -k, --token         need to use this or --auth for private repos and higher rate limits
-   -f, --file          name of the file to output the changelog to  [CHANGELOG.md]
-   -t, --title         title to appear in the top of the changelog  [Change Log]
-   -z, --time-zone     time zone  [UTC]
-   -m, --date-format   date format  [(YYYY/MM/DD HH:mm Z)]
-   -v, --verbose       output details
-   --host              alternate host name to use with github enterprise  [api.github.com]
-   --path-prefix       path-prefix for use with github enterprise
-   --between-tags      only diff between these two tags, separate by 3 dots ...
-   --for-tag           only get changes for this tag
-   --issue-body        (DEPRECATED) include the body of the issue (--data MUST equal 'pulls')
-   --no-merges         do not include merges
-   --only-merges       only include merges
-   --only-pulls        only include pull requests
-   --use-commit-body   use the commit body of a merge instead of the message - "Merge branch..."
-   --order-semver      use semantic versioning for the ordering instead of the tag date
-   --reverse-changes   reverse the order of changes within a release (show oldest first)
-   --hide-tag-names    hide tag names in changelog
-```
+  -V, --version               output the version number
+  -o, --owner <name>          (required) owner of the Github repository
+  -r, --repository <name>     (required) name of the Github repository
+  -d, --data [type]           (DEPRECATED) use pull requests or commits (choices: pulls, commits) (default: "commits")
+  -b, --branch [name]         name of the default branch (default: "master")
+  -n, --tag-name [name]       tag name for upcoming release (default: "upcoming")
+  -a, --auth                  prompt to auth with Github - use this for private repos and higher rate limits
+  -k, --token [token]         need to use this or --auth for private repos and higher rate limits
+  -f, --file [name]           name of the file to output the changelog to (default: "CHANGELOG.md")
+  -t, --title [title]         title to appear in the top of the changelog (default: "Change Log")
+  -z, --time-zone [zone]      time zone (default: "UTC")
+  -m, --date-format [format]  date format (default: "(YYYY/MM/DD HH:mm Z)")
+  -v, --verbose               output details
+  --host [domain]             alternate host name to use with github enterprise (default: "api.github.com")
+  --path-prefix [path]        path-prefix for use with github enterprise
+  --between-tags [range]      only diff between these two tags, separate by 3 dots ...
+  --issue-body                (DEPRECATED) include the body of the issue (--data MUST equal 'pulls')
+  --for-tag [tag]             only get changes for this tag
+  --exclude-tag [regex]       exclude changes matching these tags
+  --include-tag [regex]       include changes matching only these tags
+  --no-merges                 do not include merges
+  --only-merges               only include merges
+  --only-pulls                only include pull requests
+  --use-commit-body           use the commit body of a merge instead of the message - "Merge branch..."
+  --order-semver              use semantic versioning for the ordering instead of the tag date
+  --reverse-changes           reverse the order of changes within a release (show oldest first)
+  --hide-tag-names            hide tag names in changelog
+  --hide-authors              do not include authors
+  --timeout [milliseconds]    Github API timeout (default: 10000)
+  -h, --help                  display help for command
+  ```
 
 ### Example usage
 
