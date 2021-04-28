@@ -399,7 +399,7 @@ var commitFormatter = function(data) {
       }
 
     } else { //otherwise link to the commit
-      output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
+      output += "- " + message.replace((message.match(/ \(#\d+\)/) || [''])[0], '') + " [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") ";
 
       if (!opts.hideAuthors) {
         if (authors.length)
