@@ -228,7 +228,7 @@ var tagger = function(sortedTags, data) {
   if (opts.data === 'commits') date = moment(data.commit.committer.date);
   else date = moment(data.merged_at);
 
-  var current = null;
+  var current = sortedTags[0] || null;
   for (var i=0, len=sortedTags.length; i < len; i++) {
     var tag = sortedTags[i];
     if (tag.date < date) break;
