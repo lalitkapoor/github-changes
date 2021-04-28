@@ -54,6 +54,7 @@ var opts = parser
   .option('--order-semver', 'use semantic versioning for the ordering instead of the tag date')
   .option('--reverse-changes', 'reverse the order of changes within a release (show oldest first)')
   .option('--hide-tag-names', 'hide tag names in changelog')
+  .option('--hide-authors', 'do not include authors')
   .option('--timeout [milliseconds]', 'Github API timeout', 10000)
   .parse(process.argv);
 
@@ -387,21 +388,25 @@ var commitFormatter = function(data) {
       var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
       output += "- [#" + prNumber + "](" + url + ") " + message;
 
-      if (authors.length) {
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
-      } else if (author) {
-        output += " (@" + author + ")";
-      } else if (authorName) {
-        output += " (" + authorName + ")";
+      if (!opts.hideAuthors) {
+        if (authors.length) {
+          output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
+        } else if (author) {
+          output += " (@" + author + ")";
+        } else if (authorName) {
+          output += " (" + authorName + ")";
+        }
       }
 
     } else { //otherwise link to the commit
       output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
 
-      if (authors.length)
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
-      else if (commit.author && commit.author.login)
-        output += " (@" + commit.author.login + ")";
+      if (!opts.hideAuthors) {
+        if (authors.length)
+          output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
+        else if (commit.author && commit.author.login)
+          output += " (@" + commit.author.login + ")";
+      }
     }
 
     // output += " " + moment(commit.commit.committer.date).utc().format(opts.dateFormat);
