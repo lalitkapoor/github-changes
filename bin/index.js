@@ -82,7 +82,8 @@ var currentDate = moment();
 var github = null;
 
 // github auth token
-var token = null;
+//var token = null;
+var token = process.env.GITHUB_CHANGES_TOKEN;
 
 // ~/.config/changelog.json will store the token
 var authOptions = {
@@ -421,6 +422,7 @@ var formatter = function(data) {
 };
 
 var getGithubToken = function() {
+  if (token) return Promise.resolve({token});
   if (opts.token) return Promise.resolve({token: opts.token});
   if (opts.auth) return ghauth(authOptions);
   return Promise.resolve({});

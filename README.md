@@ -13,6 +13,8 @@ Generate a changelog based on merged pull requests or commit messages
 npm install -g github-changes
 ```
 
+Optionally set your GitHub token using environment variable GITHUB_CHANGES_TOKEN.
+
 ```
 Usage: github-changes [options]
 
