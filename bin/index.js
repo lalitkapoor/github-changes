@@ -386,7 +386,7 @@ var commitFormatter = function(data) {
 
       var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
       var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
-      output += "- [#" + prNumber + "](" + url + ") " + message;
+      output += "- " + message.replace((message.match(/ \(#\d+\)/) || [''])[0], '') + " [#" + prNumber + "](" + url + ") ";
 
       if (!opts.hideAuthors) {
         if (authors.length) {
