@@ -16,7 +16,7 @@
     "semver": "^6.0.0"
   },
   "devDependencies": {
-    "json": "^9.0.6"
+    "json": "^10.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
