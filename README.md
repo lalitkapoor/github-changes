@@ -20,7 +20,7 @@ Options:
    -o, --owner         (required) owner of the Github repository
    -r, --repository    (required) name of the Github repository
    -d, --data          (DEPRECATED) use pull requests or commits (choices: pulls, commits)  [commits]
-   -b, --branch        name of the default branch  [master]
+   -b, --branch        name of the default branch  [main]
    -n, --tag-name      tag name for upcoming release  [upcoming]
    -a, --auth          prompt to auth with Github - use this for private repos and higher rate limits
    -k, --token         need to use this or --auth for private repos and higher rate limits
