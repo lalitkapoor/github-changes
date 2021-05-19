@@ -31,7 +31,7 @@ var opts = parser
   .requiredOption('-o, --owner <name>', '(required) owner of the Github repository')
   .requiredOption('-r, --repository <name>', '(required) name of the Github repository')
   .option('-d, --data [type]', '(DEPRECATED) use pull requests or commits (choices: pulls, commits)', 'commits')
-  .option('-b, --branch [name]', 'name of the default branch', 'master')
+  .option('-b, --branch [name]', 'name of the default branch', 'main')
   .option('-n, --tag-name [name]', 'tag name for upcoming release', 'upcoming')
   .option('-a, --auth', 'prompt to auth with Github - use this for private repos and higher rate limits')
   .option('-k, --token [token]', 'need to use this or --auth for private repos and higher rate limits')
