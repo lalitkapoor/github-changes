@@ -481,6 +481,21 @@ var task = function() {
         if (a.tag.name === b.tag.name) tagCompare = 0;
         else if (a.tag.name === opts.tagName) tagCompare = 1;
         else if (b.tag.name === opts.tagName) tagCompare -1;
+        else if ((a.tag.name.split('.')).length > 3 || (b.tag.name.split('.')).length > 3) {
+          let tagA = a.tag.name;
+          let tagB = b.tag.name;
+          if (tagA.split('.').length > 3) {
+            tagA = a.tag.name.replace(/\.(?=[^.]*$)/, "+");
+          } else {
+            tagA += '+0';
+          }
+          if (tagB.split('.').length > 3) {
+            tagB = b.tag.name.replace(/\.(?=[^.]*$)/, "+");
+          } else {
+            tagB += '+0';
+          }
+          tagCompare = semver.compare(tagA, tagB);
+        }
         else tagCompare = semver.compare(a.tag.name, b.tag.name);
         return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
       }).reverse();
