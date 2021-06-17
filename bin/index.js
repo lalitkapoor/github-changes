@@ -45,6 +45,8 @@ var opts = parser
   .option('--between-tags [range]', 'only diff between these two tags, separate by 3 dots ...')
   .option('--issue-body', '(DEPRECATED) include the body of the issue (--data MUST equal \'pulls\')')
   .option('--for-tag [tag]', 'only get changes for this tag')
+  .option('--exclude-tag [regex]', 'exclude changes matching these tags')
+  .option('--include-tag [regex]', 'include changes matching only these tags')
   .option('--no-merges', 'do not include merges')
   .option('--only-merges', 'only include merges')
   .option('--only-pulls', 'only include pull requests')
@@ -52,6 +54,7 @@ var opts = parser
   .option('--order-semver', 'use semantic versioning for the ordering instead of the tag date')
   .option('--reverse-changes', 'reverse the order of changes within a release (show oldest first)')
   .option('--hide-tag-names', 'hide tag names in changelog')
+  .option('--hide-authors', 'do not include authors')
   .option('--timeout [milliseconds]', 'Github API timeout', 10000)
   .parse(process.argv);
 
@@ -79,7 +82,8 @@ var currentDate = moment();
 var github = null;
 
 // github auth token
-var token = null;
+//var token = null;
+var token = process.env.GITHUB_CHANGES_TOKEN;
 
 // ~/.config/changelog.json will store the token
 var authOptions = {
@@ -112,6 +116,14 @@ var getTags = function(){
           console.error(`Tag ${betweenTagsNames[1]} was given as a second value of --between-tags but it doesn't exist in repository`);
           process.exit(1);
         }
+      }
+
+      if (opts.excludeTag) {
+        const regex = new RegExp(opts.excludeTag, 'g');
+        tagArray = tagArray.filter(tag => !tag.name.match(regex));
+      } else if (opts.includeTag) {
+        const regex = new RegExp(opts.includeTag, 'g');
+        tagArray = tagArray.filter(tag => tag.name.match(regex));
       }
 
       return tagArray;
@@ -216,7 +228,7 @@ var tagger = function(sortedTags, data) {
   if (opts.data === 'commits') date = moment(data.commit.committer.date);
   else date = moment(data.merged_at);
 
-  var current = null;
+  var current = sortedTags[0] || null;
   for (var i=0, len=sortedTags.length; i < len; i++) {
     var tag = sortedTags[i];
     if (tag.date < date) break;
@@ -375,23 +387,27 @@ var commitFormatter = function(data) {
 
       var host = (opts.host === 'api.github.com') ? 'github.com' : opts.host;
       var url = "https://"+host+"/"+opts.owner+"/"+opts.repository+"/pull/"+prNumber;
-      output += "- [#" + prNumber + "](" + url + ") " + message;
+      output += "- " + message.replace((message.match(/ \(#\d+\)/) || [''])[0], '') + " [#" + prNumber + "](" + url + ") ";
 
-      if (authors.length) {
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
-      } else if (author) {
-        output += " (@" + author + ")";
-      } else if (authorName) {
-        output += " (" + authorName + ")";
+      if (!opts.hideAuthors) {
+        if (authors.length) {
+          output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
+        } else if (author) {
+          output += " (@" + author + ")";
+        } else if (authorName) {
+          output += " (" + authorName + ")";
+        }
       }
 
     } else { //otherwise link to the commit
-      output += "- [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") " + message;
+      output += "- " + message.replace((message.match(/ \(#\d+\)/) || [''])[0], '') + " [" + commit.sha.substr(0, 7) + "](" + commit.html_url + ") ";
 
-      if (authors.length)
-        output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
-      else if (commit.author && commit.author.login)
-        output += " (@" + commit.author.login + ")";
+      if (!opts.hideAuthors) {
+        if (authors.length)
+          output += ' (' + authors.map(function(author){return '@' + author}).join(', ') + ')';
+        else if (commit.author && commit.author.login)
+          output += " (@" + commit.author.login + ")";
+      }
     }
 
     // output += " " + moment(commit.commit.committer.date).utc().format(opts.dateFormat);
@@ -406,6 +422,7 @@ var formatter = function(data) {
 };
 
 var getGithubToken = function() {
+  if (token) return Promise.resolve({token});
   if (opts.token) return Promise.resolve({token: opts.token});
   if (opts.auth) return ghauth(authOptions);
   return Promise.resolve({});
@@ -464,6 +481,21 @@ var task = function() {
         if (a.tag.name === b.tag.name) tagCompare = 0;
         else if (a.tag.name === opts.tagName) tagCompare = 1;
         else if (b.tag.name === opts.tagName) tagCompare -1;
+        else if ((a.tag.name.split('.')).length > 3 || (b.tag.name.split('.')).length > 3) {
+          let tagA = a.tag.name;
+          let tagB = b.tag.name;
+          if (tagA.split('.').length > 3) {
+            tagA = a.tag.name.replace(/\.(?=[^.]*$)/, "+");
+          } else {
+            tagA += '+0';
+          }
+          if (tagB.split('.').length > 3) {
+            tagB = b.tag.name.replace(/\.(?=[^.]*$)/, "+");
+          } else {
+            tagB += '+0';
+          }
+          tagCompare = semver.compare(tagA, tagB);
+        }
         else tagCompare = semver.compare(a.tag.name, b.tag.name);
         return (tagCompare) ? tagCompare : compareSign * (moment(a.commit.committer.date) - moment(b.commit.committer.date));
       }).reverse();
