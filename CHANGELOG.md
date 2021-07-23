@@ -1,5 +1,10 @@
 ## Change Log
 
+### v2.0.3 (2021/07/23 05:57 +00:00)
+- [#94](https://github.com/lalitkapoor/github-changes/pull/94) allow using without auth or token (#94) (@lalitkapoor)
+- [#100](https://github.com/lalitkapoor/github-changes/pull/100) Bump lodash from 4.17.20 to 4.17.21 (#100) (@dependabot[bot])
+- [#99](https://github.com/lalitkapoor/github-changes/pull/99) Bump json from 9.0.6 to 10.0.0 (#99) (@dependabot[bot])
+
 ### v2.0.2 (2021/01/06 06:33 +00:00)
 - [#93](https://github.com/lalitkapoor/github-changes/pull/93) validate tags given in --between-tags option (#93) (@TheJavaGuy)
 
