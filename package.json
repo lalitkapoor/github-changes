@@ -13,7 +13,7 @@
     "ghauth": "^5.0.0",
     "lodash": "^4.17.11",
     "moment-timezone": "^0.5.23",
-    "semver": "^6.0.0"
+    "semver": "^7.5.2"
   },
   "devDependencies": {
     "json": "^10.0.0"
